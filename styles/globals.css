@@ -1,0 +1,17 @@
+/* styles/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-white text-black dark:bg-black dark:text-white transition-colors duration-150;
+}
+
+@media print {
+  body {
+    @apply bg-white text-black;
+  }
+  a[href]:after {
+    content: none !important;
+  }
+}

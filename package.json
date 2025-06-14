@@ -1,0 +1,24 @@
+{
+  "name": "contactcard",
+  "version": "1.0.0",
+  "description": "Police Scotland Roads Policing contact card app",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "echo \"No tests\" && exit 0"
+  },
+  "dependencies": {
+    "firebase": "^9.22.0",
+    "next": "13.4.12",
+    "qrcode.react": "^1.0.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-firebase-hooks": "^5.1.1"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.24",
+    "tailwindcss": "^3.3.2"
+  }
+}
