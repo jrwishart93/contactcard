@@ -18,7 +18,12 @@ export default function RTCView() {
   const [notes, setNotes] = useState('');
 
   const resendEmail = async () => {
-    await fetch(`/api/resend?id=${id}`);
+    try {
+      await fetch(`/api/resend?id=${id}`);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to resend email');
+    }
   };
 
   const saveNotes = async () => {
