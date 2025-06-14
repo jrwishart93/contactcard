@@ -1,4 +1,3 @@
-// components/RTCForm.js
 import { useState } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useRouter } from 'next/router';
@@ -6,10 +5,17 @@ import { db } from '@/firebase/client';
 
 export default function RTCForm() {
   const [parties, setParties] = useState([{ driver: '', owner: '', insurance: '', email: '' }]);
-  const [incident, setIncident] = useState('');
+  const [incidentDate, setIncidentDate] = useState('');
+  const [incident, setIncident] = useState(''); // user-entered ref number
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+
+  // derive policeRef in format PS-YYYYMMDD-RRRR
+  const policeRef =
+    incidentDate && incident
+      ? `PS-${incidentDate.replace(/-/g, '')}-${incident}`
+      : '';
 
   const addParty = () => {
     if (parties.length < 5) {
@@ -23,21 +29,26 @@ export default function RTCForm() {
     setParties(updated);
   };
 
-  const submit = async e => {
+  const submit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+
     try {
       const docRef = await addDoc(collection(db, 'rtc'), {
         parties,
         incident,
+        incidentDate,
+        policeRef,
         created: serverTimestamp(),
       });
+
       await fetch('/api/sendEmail', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: docRef.id, parties }),
+        body: JSON.stringify({ id: docRef.id, parties, policeRef }),
       });
+
       router.push(`/rtc/${docRef.id}`);
     } catch (err) {
       console.error(err);
@@ -57,7 +68,7 @@ export default function RTCForm() {
             type="text"
             placeholder="Driver Name"
             value={party.driver}
-            onChange={e => handleChange(i, 'driver', e.target.value)}
+            onChange={(e) => handleChange(i, 'driver', e.target.value)}
             className="w-full p-2 border rounded"
             required
           />
@@ -65,37 +76,71 @@ export default function RTCForm() {
             type="text"
             placeholder="Owner Name (optional)"
             value={party.owner}
-            onChange={e => handleChange(i, 'owner', e.target.value)}
+            onChange={(e) => handleChange(i, 'owner', e.target.value)}
             className="w-full p-2 border rounded"
           />
           <input
             type="text"
             placeholder="Insurance Company"
             value={party.insurance}
-            onChange={e => handleChange(i, 'insurance', e.target.value)}
+            onChange={(e) => handleChange(i, 'insurance', e.target.value)}
             className="w-full p-2 border rounded"
           />
           <input
             type="email"
             placeholder="Email"
             value={party.email}
-            onChange={e => handleChange(i, 'email', e.target.value)}
+            onChange={(e) => handleChange(i, 'email', e.target.value)}
             className="w-full p-2 border rounded"
           />
         </div>
       ))}
+
       {parties.length < 5 && (
-        <button type="button" onClick={addParty} className="px-4 py-2 rounded-full bg-gray-200 hover:bg-gray-300 transition">
+        <button
+          type="button"
+          onClick={addParty}
+          className="px-4 py-2 rounded-full bg-gray-200 hover:bg-gray-300 transition"
+        >
           Add another party
         </button>
       )}
-      <input
-        type="text"
-        placeholder="Police Incident Number (optional)"
-        value={incident}
-        onChange={e => setIncident(e.target.value)}
-        className="w-full p-2 border rounded"
-      />
+
+      <div className="space-y-2">
+        <label className="block font-medium">Incident Date</label>
+        <input
+          type="date"
+          value={incidentDate}
+          onChange={(e) => setIncidentDate(e.target.value)}
+          className="w-full p-2 border rounded"
+          required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="block font-medium">Ref Number</label>
+        <input
+          type="text"
+          placeholder="e.g. 3456"
+          value={incident}
+          onChange={(e) => setIncident(e.target.value)}
+          className="w-full p-2 border rounded"
+          required
+        />
+      </div>
+
+      {policeRef && (
+        <div className="space-y-2">
+          <label className="block font-medium">Police Ref</label>
+          <input
+            type="text"
+            value={policeRef}
+            readOnly
+            className="w-full p-2 border rounded bg-gray-100"
+          />
+        </div>
+      )}
+
       <button
         type="submit"
         disabled={loading}
@@ -103,6 +148,7 @@ export default function RTCForm() {
       >
         {loading ? 'Submitting...' : 'Submit'}
       </button>
+
       {error && <p className="text-red-500">{error}</p>}
     </form>
   );
