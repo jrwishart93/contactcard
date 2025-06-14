@@ -12,6 +12,7 @@ module.exports = {
           600: '#2563EB',
           700: '#1D4ED8',
         },
+        primary: '#005EA5',
       },
     },
   },

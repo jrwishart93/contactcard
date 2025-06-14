@@ -21,12 +21,15 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 bg-white dark:bg-black text-black dark:text-white border-b flex items-center justify-between px-4 py-2 z-10">
-      <h1 className="font-bold">Roads Policing</h1>
-      <nav className="space-x-4">
-        <Link href="/">Home</Link>
-        <Link href="/team">Team Directory</Link>
-        <Link href="/rtc/new">Report RTC</Link>
+    <header className="sticky top-0 z-20 flex items-center justify-between bg-black text-white px-6 py-3">
+      <div className="flex items-center space-x-2">
+        <img src="/logo.png" alt="Police Scotland" className="h-10 w-auto" />
+        <span className="sr-only">Police Scotland</span>
+      </div>
+      <nav>
+        <Link href="#team" className="hover:underline hover:text-primary">
+          Team Contacts
+        </Link>
       </nav>
       <button aria-label="Toggle Dark Mode" onClick={toggle} className="ml-4">
         {dark ? '☀️' : '🌙'}
