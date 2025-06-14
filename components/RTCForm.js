@@ -7,6 +7,8 @@ import { db } from '@/firebase/client';
 export default function RTCForm() {
   const [parties, setParties] = useState([{ driver: '', owner: '', insurance: '', email: '' }]);
   const [incident, setIncident] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const router = useRouter();
 
   const addParty = () => {
@@ -23,17 +25,27 @@ export default function RTCForm() {
 
   const submit = async e => {
     e.preventDefault();
-    const docRef = await addDoc(collection(db, 'rtc'), {
-      parties,
-      incident,
-      created: serverTimestamp(),
-    });
-    await fetch('/api/sendEmail', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: docRef.id, parties }),
-    });
-    router.push(`/rtc/${docRef.id}`);
+    setLoading(true);
+    setError('');
+    try {
+      const docRef = await addDoc(collection(db, 'rtc'), {
+        parties,
+        incident,
+        created: serverTimestamp(),
+      });
+      await fetch('/api/sendEmail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: docRef.id, parties }),
+      });
+      router.push(`/rtc/${docRef.id}`);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to submit');
+      alert('Failed to submit');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -84,9 +96,14 @@ export default function RTCForm() {
         onChange={e => setIncident(e.target.value)}
         className="w-full p-2 border rounded"
       />
-      <button type="submit" className="px-4 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition">
-        Submit
+      <button
+        type="submit"
+        disabled={loading}
+        className="px-4 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition disabled:opacity-50"
+      >
+        {loading ? 'Submitting...' : 'Submit'}
       </button>
+      {error && <p className="text-red-500">{error}</p>}
     </form>
   );
 }
