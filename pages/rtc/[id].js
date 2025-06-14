@@ -32,7 +32,38 @@ export default function RTCView() {
       <Header />
       <main className="p-4 space-y-4 max-w-3xl mx-auto">
         <h1 className="text-2xl">RTC Report</h1>
-        <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded">{JSON.stringify(value, null, 2)}</pre>
+        <div className="space-y-4">
+          <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded">
+            <p className="text-xl font-semibold">Police Ref: {value.policeRef || 'N/A'}</p>
+            {value.created && (
+              <p className="text-gray-600">
+                Incident Date:{' '}
+                {new Date(value.created.seconds * 1000).toLocaleDateString()}
+              </p>
+            )}
+          </div>
+          {value.parties?.map((p, i) => (
+            <div key={i} className="border p-4 rounded space-y-1">
+              <h3 className="font-semibold">Party {i + 1}</h3>
+              <p>
+                <span className="font-medium">Driver:</span> {p.driver}
+              </p>
+              {p.owner && (
+                <p>
+                  <span className="font-medium">Owner:</span> {p.owner}
+                </p>
+              )}
+              <p>
+                <span className="font-medium">Insurance:</span> {p.insurance}
+              </p>
+              {p.email && (
+                <p>
+                  <span className="font-medium">Email:</span> {p.email}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
         <textarea
           value={notes}
           onChange={e => setNotes(e.target.value)}
