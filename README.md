@@ -13,7 +13,7 @@ npm run dev
 
 ## Firebase Deployment
 
-Configure `.env.local` with your Firebase and Resend credentials. Deploy functions and hosting:
+Copy `.env.example` to `.env.local` and fill in your Firebase and Resend credentials. Deploy functions and hosting:
 
 ```bash
 firebase deploy --only functions,hosting
