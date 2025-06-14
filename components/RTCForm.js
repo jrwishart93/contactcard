@@ -6,6 +6,7 @@ import { db } from '@/firebase/client';
 
 export default function RTCForm() {
   const [parties, setParties] = useState([{ driver: '', owner: '', insurance: '', email: '' }]);
+  const [incidentDate, setIncidentDate] = useState('');
   const [incident, setIncident] = useState('');
   const router = useRouter();
 
@@ -23,15 +24,18 @@ export default function RTCForm() {
 
   const submit = async e => {
     e.preventDefault();
+    const policeRef = 'PS-' + incidentDate.replace(/-/g, '') + '-' + incident;
     const docRef = await addDoc(collection(db, 'rtc'), {
       parties,
       incident,
+      incidentDate,
+      policeRef,
       created: serverTimestamp(),
     });
     await fetch('/api/sendEmail', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: docRef.id, parties }),
+      body: JSON.stringify({ id: docRef.id, parties, policeRef }),
     });
     router.push(`/rtc/${docRef.id}`);
   };
@@ -77,6 +81,12 @@ export default function RTCForm() {
           Add another party
         </button>
       )}
+      <input
+        type="date"
+        value={incidentDate}
+        onChange={e => setIncidentDate(e.target.value)}
+        className="w-full p-2 border rounded"
+      />
       <input
         type="text"
         placeholder="Police Incident Number (optional)"
