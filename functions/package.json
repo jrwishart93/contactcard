@@ -3,6 +3,7 @@
   "main": "index.js",
   "dependencies": {
     "firebase-functions": "^4.3.0",
+    "firebase-admin": "^11.10.1",
     "resend": "^0.3.0"
   }
 }
