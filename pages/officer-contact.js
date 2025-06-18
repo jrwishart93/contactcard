@@ -1,17 +1,23 @@
-import Image from 'next/image';
-import { PhoneIcon, EnvelopeIcon, MapPinIcon } from '@heroicons/react/24/outline';
+import Image from "next/image";
+import {
+  PhoneIcon,
+  EnvelopeIcon,
+  MapPinIcon,
+  IdentificationIcon,
+} from "@heroicons/react/24/outline";
 
 export default function OfficerContact() {
   return (
     <div className="min-h-screen flex flex-col bg-white text-black font-sans">
-      <header className="relative">
-        <div className="w-full h-48 sm:h-60 relative">
+      <header className="relative pb-20">
+        <div className="w-full h-48 sm:h-60 md:h-72 lg:h-80 relative">
           <Image
             src="/images/queensferrycrossing-background.jpg"
             alt="Queensferry Crossing"
             fill
             priority
             className="object-cover"
+            style={{ objectPosition: "center 75%" }}
           />
         </div>
         <Image
@@ -21,18 +27,17 @@ export default function OfficerContact() {
           height={80}
           className="absolute top-4 right-4 w-20 h-auto"
         />
-      </header>
-
-      <main className="flex-grow flex flex-col items-center text-center px-4">
-        <div className="-mt-16">
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 z-10 w-40 h-40">
           <Image
             src="/images/trafficofficercontact.png"
             alt="PC John Smith"
-            width={160}
-            height={160}
+            fill
             className="rounded-full border-4 border-white shadow-md object-cover"
           />
         </div>
+      </header>
+
+      <main className="flex-grow flex flex-col items-center text-center px-4 mt-24">
 
         <div className="mt-4 space-y-1">
           <h1 className="font-bold text-xl">PC JOHN SMITH</h1>
@@ -44,11 +49,18 @@ export default function OfficerContact() {
           <a href="tel:101" className="hover:opacity-75" aria-label="Phone">
             <PhoneIcon className="h-6 w-6" />
           </a>
-          <a href="mailto:folk_dragnet.2a@icloud.com" className="hover:opacity-75" aria-label="Email">
+          <a
+            href="mailto:folk_dragnet.2a@icloud.com"
+            className="hover:opacity-75"
+            aria-label="Email"
+          >
             <EnvelopeIcon className="h-6 w-6" />
           </a>
           <a href="#" className="hover:opacity-75" aria-label="Location">
             <MapPinIcon className="h-6 w-6" />
+          </a>
+          <a href="#" className="hover:opacity-75" aria-label="Badge">
+            <IdentificationIcon className="h-6 w-6" />
           </a>
         </div>
 
