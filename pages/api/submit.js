@@ -16,18 +16,46 @@ const db = getFirestore();
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const { incidentNumber, userId, fullName, email, constable, location, vehicle, insurance } = req.body;
+  const {
+    incidentNumber,
+    userId,
+    fullName,
+    email,
+    constable,
+    location,
+    vehicle,
+    insurance,
+    incidentDate,
+    policeRef,
+    phone,
+  } = req.body;
 
   try {
     await setDoc(doc(db, 'rtc', incidentNumber, 'submissions', userId), {
-      fullName, email, constable, location, vehicle, insurance,
-      submittedAt: new Date()
+      fullName,
+      email,
+      constable,
+      location,
+      vehicle,
+      insurance,
+      incidentDate,
+      policeRef,
+      phone,
+      submittedAt: new Date(),
     });
 
     const html = generateInitialEmailTemplate({
-      fullName, email, constable, location, incidentNumber,
-      vehicleDetails: `${vehicle.make} ${vehicle.model} (${vehicle.colour}) - ${vehicle.reg}`,
-      insuranceDetails: `${insurance.company} - Policy ${insurance.policyNumber}`
+      fullName,
+      email,
+      constable,
+      location,
+      incidentNumber,
+      incidentDate,
+      policeRef,
+      vehicleDetails: `${
+        vehicle.makeModel || `${vehicle.make || ''} ${vehicle.model || ''}`
+      } ${vehicle.colour ? `(${vehicle.colour})` : ''} - ${vehicle.reg || ''}`.trim(),
+      insuranceDetails: `${insurance.company || ''} - Policy ${insurance.policyNumber || ''}`,
     });
 
     await resend.emails.send({
@@ -44,7 +72,17 @@ export default async function handler(req, res) {
   }
 }
 
-function generateInitialEmailTemplate({ fullName, email, constable, location, incidentNumber, vehicleDetails, insuranceDetails }) {
+function generateInitialEmailTemplate({
+  fullName,
+  email,
+  constable,
+  location,
+  incidentNumber,
+  incidentDate,
+  policeRef,
+  vehicleDetails,
+  insuranceDetails,
+}) {
   return `
     <!DOCTYPE html>
     <html>
@@ -87,9 +125,14 @@ function generateInitialEmailTemplate({ fullName, email, constable, location, in
           <div class="info"><strong>Insurance:</strong> ${insuranceDetails}</div>
           <div class="info"><strong>Constable:</strong> ${constable}</div>
           <div class="info"><strong>Location:</strong> ${location}</div>
-          <div class="info"><strong>Incident Ref:</strong> ${incidentNumber}</div>
+          <div class="info"><strong>Date of Incident:</strong> ${incidentDate ? new Date(incidentDate).toLocaleDateString() : ''}</div>
+          <div class="info"><strong>Ref:</strong> ${policeRef}</div>
           <p class="message">
             We’ve received your submission. Once all other parties involved have entered their details and the officer has reviewed the information, a full summary report will be sent to you and others involved.
+          </p>
+          <p class="message">
+            You can view or update the report at <a href="${process.env.BASE_URL}/view-report">${process.env.BASE_URL}/view-report</a>.
+            Keep this email to access your report later.
           </p>
           <div class="footer">
             Police Scotland — This message was sent automatically from the Crash Report System

@@ -76,6 +76,8 @@ export default function RTCForm() {
             phone: formData.contactNumber,
             constable: formData.officer,
             location: formData.location,
+            incidentDate: formData.incidentDate,
+            policeRef: formData.policeRef,
             vehicle: {
               makeModel: formData.makeModel,
               reg: formData.vehicleReg,
