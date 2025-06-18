@@ -1,4 +1,4 @@
-// pages/team/[shoulderNumber].js
+// pages/team/[slug].js
 import { useRouter } from 'next/router';
 import Header from '@/components/Header';
 import ContactCard from '@/components/ContactCard';
@@ -8,15 +8,15 @@ import { useEffect, useState } from 'react';
 
 export default function OfficerPage() {
   const router = useRouter();
-  const { shoulderNumber } = router.query;
+  const { slug } = router.query;
   const [officer, setOfficer] = useState(null);
 
   useEffect(() => {
-    if (shoulderNumber) {
-      const found = officers.find(o => o.shoulderNumber === shoulderNumber);
+    if (slug) {
+      const found = officers.find((o) => o.slug === slug);
       setOfficer(found);
     }
-  }, [shoulderNumber]);
+  }, [slug]);
 
   if (!officer) return null;
 
