@@ -22,10 +22,10 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-20 flex items-center justify-between bg-black text-white px-6 py-3">
-      <div className="flex items-center space-x-2">
+      <Link href="/" className="flex items-center space-x-2">
         <img src="/logo.png" alt="Police Scotland" className="h-10 w-auto" />
         <span className="sr-only">Police Scotland</span>
-      </div>
+      </Link>
       <nav>
         <Link href="/" className="hover:underline hover:text-primary">
           Police Scotland
