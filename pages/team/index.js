@@ -10,10 +10,10 @@ export default function Team() {
     <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white">
       <Header />
       <main className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {officers.map(officer => (
+        {officers.map((officer) => (
           <Link
             key={officer.shoulderNumber}
-            href={officer.link || `/team/${officer.shoulderNumber}`}
+            href={`/team/${officer.slug}`}
             className="hover:opacity-90 transition"
           >
             <ContactCard {...officer} />
