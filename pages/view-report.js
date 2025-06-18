@@ -75,9 +75,9 @@ export default function ViewReport() {
   return (
     <div className="min-h-screen flex flex-col bg-white text-black">
       <Header />
-      <main className="flex-grow p-4 max-w-md mx-auto space-y-4">
-        <h1 className="text-2xl font-semibold">View Crash Report</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <main className="flex-grow p-4 md:p-8 max-w-md mx-auto space-y-4">
+        <h1 className="text-2xl sm:text-3xl font-semibold">View Crash Report</h1>
+        <form onSubmit={handleSubmit} className="space-y-4 text-base">
           <div>
             <label className="block font-medium">Storm Ref</label>
             <input
@@ -88,7 +88,7 @@ export default function ViewReport() {
               pattern="\d{4}"
               required
               maxLength={4}
-              className="mt-1 block w-full p-2 border rounded"
+              className="mt-1 block w-full p-3 border rounded text-base"
             />
           </div>
           <div>
@@ -99,7 +99,7 @@ export default function ViewReport() {
               value={form.dateOfIncident}
               onChange={handleChange}
               required
-              className="mt-1 block w-full p-2 border rounded"
+              className="mt-1 block w-full p-3 border rounded text-base"
             />
           </div>
           <div>
@@ -110,11 +110,11 @@ export default function ViewReport() {
               value={form.email}
               onChange={handleChange}
               required
-              className="mt-1 block w-full p-2 border rounded"
+              className="mt-1 block w-full p-3 border rounded text-base"
             />
           </div>
           {error && <p className="text-red-600">{error}</p>}
-          <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">
+          <button type="submit" className="px-6 py-3 bg-blue-600 text-white rounded text-base">
             Submit
           </button>
         </form>
