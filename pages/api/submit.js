@@ -1,0 +1,101 @@
+import { Resend } from 'resend';
+import { initializeApp, getApps } from 'firebase/app';
+import { getFirestore, doc, setDoc } from 'firebase/firestore';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+};
+
+if (!getApps().length) initializeApp(firebaseConfig);
+const db = getFirestore();
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).end();
+
+  const { incidentNumber, userId, fullName, email, constable, location, vehicle, insurance } = req.body;
+
+  try {
+    await setDoc(doc(db, 'rtc', incidentNumber, 'submissions', userId), {
+      fullName, email, constable, location, vehicle, insurance,
+      submittedAt: new Date()
+    });
+
+    const html = generateInitialEmailTemplate({
+      fullName, email, constable, location, incidentNumber,
+      vehicleDetails: `${vehicle.make} ${vehicle.model} (${vehicle.colour}) - ${vehicle.reg}`,
+      insuranceDetails: `${insurance.company} - Policy ${insurance.policyNumber}`
+    });
+
+    await resend.emails.send({
+      from: 'Police Scotland <noreply@resend.dev>',
+      to: email,
+      subject: 'Crash Report Confirmation',
+      html
+    });
+
+    res.status(200).json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+}
+
+function generateInitialEmailTemplate({ fullName, email, constable, location, incidentNumber, vehicleDetails, insuranceDetails }) {
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="UTF-8" />
+        <title>Crash Report Received</title>
+        <style>
+          body {
+            background-color: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+          }
+          .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #ffffff;
+            padding: 30px 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+          }
+          .logo { text-align: center; margin-bottom: 24px; }
+          .logo img { max-width: 160px; height: auto; }
+          h1 { font-size: 20px; color: #222; margin-bottom: 20px; }
+          .info { margin-bottom: 16px; }
+          .info strong { display: inline-block; width: 140px; color: #555; }
+          p.message { margin-top: 24px; line-height: 1.5; color: #444; }
+          .footer { margin-top: 40px; font-size: 12px; text-align: center; color: #999; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="logo">
+            <img src="https://iili.io/FoKMGEv.md.png" alt="Crash Report Logo" />
+          </div>
+          <h1>Thank you for submitting your crash report</h1>
+          <div class="info"><strong>Full Name:</strong> ${fullName}</div>
+          <div class="info"><strong>Email:</strong> ${email}</div>
+          <div class="info"><strong>Vehicle:</strong> ${vehicleDetails}</div>
+          <div class="info"><strong>Insurance:</strong> ${insuranceDetails}</div>
+          <div class="info"><strong>Constable:</strong> ${constable}</div>
+          <div class="info"><strong>Location:</strong> ${location}</div>
+          <div class="info"><strong>Incident Ref:</strong> ${incidentNumber}</div>
+          <p class="message">
+            We’ve received your submission. Once all other parties involved have entered their details and the officer has reviewed the information, a full summary report will be sent to you and others involved.
+          </p>
+          <div class="footer">
+            Police Scotland — This message was sent automatically from the Crash Report System
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+}
