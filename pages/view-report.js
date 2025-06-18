@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import {
@@ -12,6 +13,7 @@ import {
 import { db } from '@/firebase/client';
 
 export default function ViewReport() {
+  const router = useRouter();
   const [form, setForm] = useState({
     stormRef: '',
     dateOfIncident: '',
@@ -20,6 +22,16 @@ export default function ViewReport() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState(null);
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    const { ref, date } = router.query;
+    setForm(prev => ({
+      ...prev,
+      stormRef: typeof ref === 'string' ? ref : prev.stormRef,
+      dateOfIncident: typeof date === 'string' ? date : prev.dateOfIncident,
+    }));
+  }, [router.isReady, router.query]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
