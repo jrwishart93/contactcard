@@ -1,109 +1,214 @@
-// components/RTCForm.js
 import { useState } from 'react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useRouter } from 'next/router';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/firebase/client';
 
 export default function RTCForm() {
-  const [parties, setParties] = useState([{ driver: '', owner: '', insurance: '', email: '' }]);
-  const [incident, setIncident] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const router = useRouter();
+  const [formData, setFormData] = useState({
+    incidentDate: '',
+    policeRef: '',
+    vehicleReg: '',
+    makeModel: '',
+    driverName: '',
+    ownerName: '',
+    insuranceCompany: '',
+    policyNo: '',
+    injuries: 'No',
+    injuryDetails: '',
+    officer: '',
+  });
+  const [submitting, setSubmitting] = useState(false);
 
-  const addParty = () => {
-    if (parties.length < 5) {
-      setParties([...parties, { driver: '', owner: '', insurance: '', email: '' }]);
-    }
+  const officers = [
+    { value: 'T329 PC Wishart', label: 'T329 PC Wishart' },
+    { value: 'T159 PC Niven', label: 'T159 PC Niven' },
+    { value: 'T123 PC Example1', label: 'T123 PC Example1' },
+    { value: 'T456 PC Example2', label: 'T456 PC Example2' },
+  ];
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleChange = (i, field, value) => {
-    const updated = [...parties];
-    updated[i][field] = value;
-    setParties(updated);
-  };
-
-  const submit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
+    setSubmitting(true);
     try {
       const docRef = await addDoc(collection(db, 'rtc'), {
-        parties,
-        incident,
+        ...formData,
         created: serverTimestamp(),
       });
-      await fetch('/api/sendEmail', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: docRef.id, parties }),
-      });
       router.push(`/rtc/${docRef.id}`);
-    } catch (err) {
-      console.error(err);
-      setError('Failed to submit');
-      alert('Failed to submit');
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error('Error adding document: ', error);
+      alert('Failed to create report');
     }
+    setSubmitting(false);
   };
 
   return (
-    <form onSubmit={submit} className="space-y-4">
-      {parties.map((party, i) => (
-        <div key={i} className="border p-4 rounded space-y-2">
-          <h3 className="font-semibold">Party {i + 1}</h3>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block font-medium">Date of Incident:</label>
           <input
-            type="text"
-            placeholder="Driver Name"
-            value={party.driver}
-            onChange={e => handleChange(i, 'driver', e.target.value)}
-            className="w-full p-2 border rounded"
+            type="date"
+            name="incidentDate"
+            value={formData.incidentDate}
+            onChange={handleChange}
             required
-          />
-          <input
-            type="text"
-            placeholder="Owner Name (optional)"
-            value={party.owner}
-            onChange={e => handleChange(i, 'owner', e.target.value)}
-            className="w-full p-2 border rounded"
-          />
-          <input
-            type="text"
-            placeholder="Insurance Company"
-            value={party.insurance}
-            onChange={e => handleChange(i, 'insurance', e.target.value)}
-            className="w-full p-2 border rounded"
-          />
-          <input
-            type="email"
-            placeholder="Email"
-            value={party.email}
-            onChange={e => handleChange(i, 'email', e.target.value)}
-            className="w-full p-2 border rounded"
+            className="mt-1 block w-full p-2 border rounded"
           />
         </div>
-      ))}
-      {parties.length < 5 && (
-        <button type="button" onClick={addParty} className="px-4 py-2 rounded-full bg-gray-200 hover:bg-gray-300 transition">
-          Add another party
-        </button>
-      )}
-      <input
-        type="text"
-        placeholder="Police Incident Number (optional)"
-        value={incident}
-        onChange={e => setIncident(e.target.value)}
-        className="w-full p-2 border rounded"
-      />
+        <div>
+          <label className="block font-medium">Ref:</label>
+          <input
+            type="text"
+            name="policeRef"
+            value={formData.policeRef}
+            onChange={handleChange}
+            placeholder="If known"
+            className="mt-1 block w-full p-2 border rounded"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block font-medium">Vehicle Registration No.:</label>
+          <input
+            type="text"
+            name="vehicleReg"
+            value={formData.vehicleReg}
+            onChange={handleChange}
+            required
+            className="mt-1 block w-full p-2 border rounded"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Make/Model:</label>
+          <input
+            type="text"
+            name="makeModel"
+            value={formData.makeModel}
+            onChange={handleChange}
+            required
+            className="mt-1 block w-full p-2 border rounded"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block font-medium">Name of Driver:</label>
+          <input
+            type="text"
+            name="driverName"
+            value={formData.driverName}
+            onChange={handleChange}
+            required
+            className="mt-1 block w-full p-2 border rounded"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Name of Owner:</label>
+          <input
+            type="text"
+            name="ownerName"
+            value={formData.ownerName}
+            onChange={handleChange}
+            placeholder="If different or company"
+            className="mt-1 block w-full p-2 border rounded"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block font-medium">Insurance Company:</label>
+          <input
+            type="text"
+            name="insuranceCompany"
+            value={formData.insuranceCompany}
+            onChange={handleChange}
+            required
+            className="mt-1 block w-full p-2 border rounded"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Policy No.:</label>
+          <input
+            type="text"
+            name="policyNo"
+            value={formData.policyNo}
+            onChange={handleChange}
+            placeholder="If known"
+            className="mt-1 block w-full p-2 border rounded"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="block font-medium">Injuries:</label>
+        <div className="flex items-center space-x-4 mt-1">
+          <label>
+            <input
+              type="radio"
+              name="injuries"
+              value="Yes"
+              checked={formData.injuries === 'Yes'}
+              onChange={handleChange}
+              className="mr-1"
+            />
+            Yes
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="injuries"
+              value="No"
+              checked={formData.injuries === 'No'}
+              onChange={handleChange}
+              className="mr-1"
+            />
+            No
+          </label>
+        </div>
+        {formData.injuries === 'Yes' && (
+          <textarea
+            name="injuryDetails"
+            value={formData.injuryDetails}
+            onChange={handleChange}
+            placeholder="Brief details of injuries"
+            className="mt-2 block w-full p-2 border rounded"
+          />
+        )}
+      </div>
+
+      <div>
+        <label className="block font-medium">Officer Dealing:</label>
+        <select
+          name="officer"
+          value={formData.officer}
+          onChange={handleChange}
+          className="mt-1 block w-full p-2 border rounded"
+        >
+          <option value="">Select officer (if known)</option>
+          {officers.map(o => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+      </div>
+
       <button
         type="submit"
-        disabled={loading}
-        className="px-4 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition disabled:opacity-50"
+        disabled={submitting}
+        className="px-4 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition"
       >
-        {loading ? 'Submitting...' : 'Submit'}
+        {submitting ? 'Saving...' : 'Submit Report'}
       </button>
-      {error && <p className="text-red-500">{error}</p>}
     </form>
   );
 }

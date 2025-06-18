@@ -1,92 +1,111 @@
 // pages/rtc/[id].js
 import { useRouter } from 'next/router';
 import { useDocumentData } from 'react-firebase-hooks/firestore';
-import { doc, updateDoc } from 'firebase/firestore';
-import { useState } from 'react';
+import { doc } from 'firebase/firestore';
 import Header from '@/components/Header';
 import { db } from '@/firebase/client';
 import QRCodeOverlay from '@/components/QRCodeOverlay';
 import dynamic from 'next/dynamic';
 
-const QRCode = dynamic(() => import('qrcode.react'), { ssr: false });
+// Pull off the default export so dynamic() gets a valid React component
+const QRCode = dynamic(
+  () => import('qrcode.react').then(mod => mod.default),
+  { ssr: false }
+);
 
 export default function RTCView() {
   const router = useRouter();
   const { id } = router.query;
   const docRef = id ? doc(db, 'rtc', id) : null;
-  const [value] = useDocumentData(docRef);
-  const [notes, setNotes] = useState('');
+  const [value, loading, error] = useDocumentData(docRef);
 
   const resendEmail = async () => {
     try {
-      await fetch(`/api/resend?id=${id}`);
+      await fetch(`/api/resend?id=${id}`, { method: 'POST' });
     } catch (err) {
       console.error(err);
       alert('Failed to resend email');
     }
   };
 
-  const saveNotes = async () => {
-    if (docRef) await updateDoc(docRef, { notes });
-  };
-
+  if (loading) return <p className="p-4">Loading…</p>;
+  if (error) return <p className="p-4 text-red-500">Error loading report.</p>;
   if (!value) return null;
 
   return (
     <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white">
       <Header />
-      <main className="p-4 space-y-4 max-w-3xl mx-auto">
+
+      <main className="p-4 space-y-6 max-w-3xl mx-auto">
         <h1 className="text-2xl">RTC Report</h1>
-        <div className="space-y-4">
-          <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded">
-            <p className="text-xl font-semibold">Police Ref: {value.policeRef || 'N/A'}</p>
-            {value.created && (
-              <p className="text-gray-600">
-                Incident Date:{' '}
-                {new Date(value.created.seconds * 1000).toLocaleDateString()}
-              </p>
-            )}
-          </div>
-          {value.parties?.map((p, i) => (
-            <div key={i} className="border p-4 rounded space-y-1">
-              <h3 className="font-semibold">Party {i + 1}</h3>
-              <p>
-                <span className="font-medium">Driver:</span> {p.driver}
-              </p>
-              {p.owner && (
-                <p>
-                  <span className="font-medium">Owner:</span> {p.owner}
-                </p>
-              )}
-              <p>
-                <span className="font-medium">Insurance:</span> {p.insurance}
-              </p>
-              {p.email && (
-                <p>
-                  <span className="font-medium">Email:</span> {p.email}
-                </p>
-              )}
-            </div>
-          ))}
+
+        <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded space-y-2">
+          <p>
+            <span className="font-medium">Date of Incident:</span>{' '}
+            {value.incidentDate
+              ? new Date(value.incidentDate).toLocaleDateString()
+              : 'N/A'}
+          </p>
+          <p>
+            <span className="font-medium">Ref:</span>{' '}
+            {value.policeRef || 'N/A'}
+          </p>
+          <p>
+            <span className="font-medium">Vehicle Registration No.:</span>{' '}
+            {value.vehicleReg}
+          </p>
+          <p>
+            <span className="font-medium">Make/Model:</span>{' '}
+            {value.makeModel}
+          </p>
+          <p>
+            <span className="font-medium">Driver:</span>{' '}
+            {value.driverName}
+          </p>
+          {value.ownerName && (
+            <p>
+              <span className="font-medium">Owner:</span>{' '}
+              {value.ownerName}
+            </p>
+          )}
+          <p>
+            <span className="font-medium">Insurance Company:</span>{' '}
+            {value.insuranceCompany}
+          </p>
+          {value.policyNo && (
+            <p>
+              <span className="font-medium">Policy No.:</span>{' '}
+              {value.policyNo}
+            </p>
+          )}
+          <p>
+            <span className="font-medium">Injuries:</span>{' '}
+            {value.injuries}
+          </p>
+          {value.injuries === 'Yes' && (
+            <p className="italic">
+              <span className="font-medium">Details:</span>{' '}
+              {value.injuryDetails}
+            </p>
+          )}
+          {value.officer && (
+            <p>
+              <span className="font-medium">Officer Dealing:</span>{' '}
+              {value.officer}
+            </p>
+          )}
         </div>
-        <textarea
-          value={notes}
-          onChange={e => setNotes(e.target.value)}
-          placeholder="Add notes"
-          className="w-full p-2 border rounded"
-        />
+
         <div className="flex space-x-2">
-          <button onClick={saveNotes} className="px-4 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition">Save</button>
-          <button onClick={resendEmail} className="px-4 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition">Resend Email</button>
+          <button
+            onClick={resendEmail}
+            className="px-4 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition"
+          >
+            Resend Email
+          </button>
           <QRCodeOverlay url={router.asPath} />
         </div>
-        <div className="mt-4">
-          <iframe
-            src={`https://www.google.com/maps?q=${value.location?.lat},${value.location?.lng}&z=14&output=embed`}
-            className="w-full h-64 border"
-            allowFullScreen
-          />
-        </div>
+
         <div className="hidden print:block mt-8">
           <QRCode value={router.asPath} size={128} />
         </div>
