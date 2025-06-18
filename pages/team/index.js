@@ -11,7 +11,11 @@ export default function Team() {
       <Header />
       <main className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {officers.map(officer => (
-          <Link key={officer.shoulderNumber} href={`/team/${officer.shoulderNumber}`} className="hover:opacity-90 transition">
+          <Link
+            key={officer.shoulderNumber}
+            href={officer.link || `/team/${officer.shoulderNumber}`}
+            className="hover:opacity-90 transition"
+          >
             <ContactCard {...officer} />
           </Link>
         ))}
