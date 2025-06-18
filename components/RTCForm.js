@@ -98,7 +98,7 @@ export default function RTCForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4 text-base">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block font-medium">Date of Incident:</label>
@@ -108,7 +108,7 @@ export default function RTCForm() {
             value={formData.incidentDate}
             onChange={handleChange}
             required
-            className="mt-1 block w-full p-2 border rounded"
+            className="mt-1 block w-full p-3 border rounded text-base"
           />
         </div>
         <div>
@@ -119,7 +119,7 @@ export default function RTCForm() {
             value={formData.policeRef}
             onChange={handleChange}
             placeholder="If known"
-            className="mt-1 block w-full p-2 border rounded"
+            className="mt-1 block w-full p-3 border rounded text-base"
           />
         </div>
       </div>
@@ -133,7 +133,7 @@ export default function RTCForm() {
             value={formData.vehicleReg}
             onChange={handleChange}
             required
-            className="mt-1 block w-full p-2 border rounded"
+            className="mt-1 block w-full p-3 border rounded text-base"
           />
         </div>
         <div>
@@ -144,7 +144,7 @@ export default function RTCForm() {
             value={formData.makeModel}
             onChange={handleChange}
             required
-            className="mt-1 block w-full p-2 border rounded"
+            className="mt-1 block w-full p-3 border rounded text-base"
           />
         </div>
       </div>
@@ -158,7 +158,7 @@ export default function RTCForm() {
             value={formData.driverName}
             onChange={handleChange}
             required
-            className="mt-1 block w-full p-2 border rounded"
+            className="mt-1 block w-full p-3 border rounded text-base"
           />
         </div>
         <div>
@@ -169,7 +169,7 @@ export default function RTCForm() {
             value={formData.ownerName}
             onChange={handleChange}
             placeholder="If different or company"
-            className="mt-1 block w-full p-2 border rounded"
+            className="mt-1 block w-full p-3 border rounded text-base"
           />
         </div>
       </div>
@@ -183,7 +183,7 @@ export default function RTCForm() {
             value={formData.insuranceCompany}
             onChange={handleChange}
             required
-            className="mt-1 block w-full p-2 border rounded"
+            className="mt-1 block w-full p-3 border rounded text-base"
           />
         </div>
         <div>
@@ -194,7 +194,7 @@ export default function RTCForm() {
             value={formData.policyNo}
             onChange={handleChange}
             placeholder="If known"
-            className="mt-1 block w-full p-2 border rounded"
+            className="mt-1 block w-full p-3 border rounded text-base"
           />
         </div>
       </div>
@@ -208,13 +208,13 @@ export default function RTCForm() {
             value={formData.location}
             onChange={handleChange}
             placeholder="Enter street or area"
-            className="mt-1 block w-full p-2 border rounded"
+            className="mt-1 block w-full p-3 border rounded text-base"
           />
         </div>
         <button
           type="button"
           onClick={handleUseLocation}
-          className="px-4 py-2 rounded-full bg-gray-200 dark:bg-gray-700"
+          className="px-6 py-3 rounded-full bg-gray-200 dark:bg-gray-700 text-base"
         >
           Use My Location
         </button>
@@ -273,7 +273,7 @@ export default function RTCForm() {
             value={formData.injuryDetails}
             onChange={handleChange}
             placeholder="Brief details of injuries"
-            className="mt-2 block w-full p-2 border rounded"
+            className="mt-2 block w-full p-3 border rounded text-base"
           />
         )}
       </div>
@@ -284,7 +284,7 @@ export default function RTCForm() {
           name="officer"
           value={formData.officer}
           onChange={handleChange}
-          className="mt-1 block w-full p-2 border rounded"
+          className="mt-1 block w-full p-3 border rounded text-base"
         >
           <option value="">Select officer (if known)</option>
           {officers.map(o => (
@@ -302,7 +302,7 @@ export default function RTCForm() {
             value={formData.email}
             onChange={handleChange}
             required
-            className="mt-1 block w-full p-2 border rounded"
+            className="mt-1 block w-full p-3 border rounded text-base"
           />
         </div>
         <div>
@@ -313,7 +313,7 @@ export default function RTCForm() {
             value={formData.contactNumber}
             onChange={handleChange}
             placeholder="Optional"
-            className="mt-1 block w-full p-2 border rounded"
+            className="mt-1 block w-full p-3 border rounded text-base"
           />
         </div>
       </div>
@@ -321,7 +321,7 @@ export default function RTCForm() {
       <button
         type="submit"
         disabled={submitting}
-        className="px-4 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition"
+        className="px-6 py-3 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition text-base"
       >
         {submitting ? 'Saving...' : 'Submit Report'}
       </button>

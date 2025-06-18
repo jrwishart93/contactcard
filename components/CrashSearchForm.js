@@ -31,7 +31,7 @@ export default function CrashSearchForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4 text-base">
       <div>
         <label className="block font-medium">Date</label>
         <input
@@ -39,7 +39,7 @@ export default function CrashSearchForm() {
           value={date}
           onChange={(e) => setDate(e.target.value)}
           required
-          className="mt-1 block w-full p-2 border rounded"
+          className="mt-1 block w-full p-3 border rounded text-base"
         />
       </div>
       <div>
@@ -49,13 +49,13 @@ export default function CrashSearchForm() {
           value={stormRef}
           onChange={(e) => setStormRef(e.target.value)}
           required
-          className="mt-1 block w-full p-2 border rounded"
+          className="mt-1 block w-full p-3 border rounded text-base"
         />
       </div>
       <button
         type="submit"
         disabled={loading}
-        className="px-4 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition"
+        className="px-6 py-3 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition text-base"
       >
         {loading ? 'Searching...' : 'Find Report'}
       </button>
