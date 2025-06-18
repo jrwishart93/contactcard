@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { db } from '@/firebase/client';
 
 export default function RTCForm() {
@@ -59,9 +59,14 @@ export default function RTCForm() {
     e.preventDefault();
     setSubmitting(true);
     try {
+      const now = Timestamp.now();
       const docRef = await addDoc(collection(db, 'rtc'), {
         ...formData,
         created: serverTimestamp(),
+        createdAt: now,
+        expiresAt: Timestamp.fromMillis(
+          now.toMillis() + 30 * 24 * 60 * 60 * 1000
+        ),
       });
       // Send confirmation email using API route
       try {
