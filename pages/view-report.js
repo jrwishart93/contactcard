@@ -1,6 +1,15 @@
 import { useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  getDoc,
+  doc,
+} from 'firebase/firestore';
+import { db } from '@/firebase/client';
 
 export default function ViewReport() {
   const [form, setForm] = useState({
@@ -9,21 +18,58 @@ export default function ViewReport() {
     email: '',
   });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [report, setReport] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!/^\d{4}$/.test(form.stormRef)) {
       setError('Storm Ref must be 4 digits');
       return;
     }
     setError('');
-    // TODO: handle search
-    console.log('submit', form);
+    setLoading(true);
+    setReport(null);
+    try {
+      const q = query(
+        collection(db, 'rtc'),
+        where('policeRef', '==', form.stormRef),
+        where('incidentDate', '==', form.dateOfIncident)
+      );
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        setError('No report found for that Storm Ref, date, and email combination.');
+        setLoading(false);
+        return;
+      }
+      const docSnap = snap.docs[0];
+      const data = docSnap.data();
+      if (data.expiresAt && data.expiresAt.toDate() <= new Date()) {
+        setError('No report found for that Storm Ref, date, and email combination.');
+        setLoading(false);
+        return;
+      }
+      const subsSnap = await getDocs(collection(db, 'rtc', docSnap.id, 'submissions'));
+      const submissions = subsSnap.docs.map(d => d.data());
+      const hasEmail = submissions.some(s =>
+        s.email && s.email.toLowerCase() === form.email.toLowerCase()
+      );
+      if (!hasEmail) {
+        setError('No report found for that Storm Ref, date, and email combination.');
+        setLoading(false);
+        return;
+      }
+      setReport({ id: docSnap.id, ...data, submissions });
+    } catch (err) {
+      console.error(err);
+      setError('Failed to lookup report');
+    }
+    setLoading(false);
   };
 
   return (
@@ -72,6 +118,29 @@ export default function ViewReport() {
             Submit
           </button>
         </form>
+        {loading && <p>Loading…</p>}
+        {report && (
+          <div className="mt-4 space-y-2 text-sm">
+            <h2 className="text-lg font-medium">Crash Report {report.id}</h2>
+            <p>
+              <span className="font-medium">Date:</span>{' '}
+              {report.incidentDate}
+            </p>
+            <p>
+              <span className="font-medium">Ref:</span> {report.policeRef}
+            </p>
+            {report.submissions && (
+              <div className="mt-2">
+                <h3 className="font-medium">Submissions</h3>
+                <ul className="list-disc list-inside">
+                  {report.submissions.map((s, idx) => (
+                    <li key={idx}>{s.fullName || s.email}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
       </main>
       <Footer />
     </div>
