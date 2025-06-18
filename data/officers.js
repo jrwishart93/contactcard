@@ -10,4 +10,14 @@ export const officers = [
   { name: 'Karen Black', badge: 'PC 852', email: 'karen.black@scotland.police.uk', phone: '101', shoulderNumber: '852' },
   { name: 'Gary Mills', badge: 'PC 963', email: 'gary.mills@scotland.police.uk', phone: '101', shoulderNumber: '963' },
   { name: 'Rachel Green', badge: 'PC 147', email: 'rachel.green@scotland.police.uk', phone: '101', shoulderNumber: '147' },
+  {
+    name: 'John Smith',
+    badge: 'PC T123',
+    email: 'folk_dragnet.2a@icloud.com',
+    phone: '101',
+    shoulderNumber: 'T123',
+    unit: 'Road Policing Unit',
+    image: '/images/trafficofficercontact.png',
+    link: '/officer-contact',
+  },
 ];
