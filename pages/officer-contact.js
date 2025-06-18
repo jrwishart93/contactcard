@@ -1,17 +1,23 @@
-import Image from 'next/image';
-import { PhoneIcon, EnvelopeIcon, MapPinIcon } from '@heroicons/react/24/outline';
+import Image from "next/image";
+import {
+  PhoneIcon,
+  EnvelopeIcon,
+  MapPinIcon,
+  IdentificationIcon,
+} from "@heroicons/react/24/outline";
 
 export default function OfficerContact() {
   return (
     <div className="min-h-screen flex flex-col bg-white text-black font-sans">
       <header className="relative">
-        <div className="w-full h-48 sm:h-60 relative">
+        <div className="w-full h-48 sm:h-60 md:h-72 lg:h-80 relative">
           <Image
             src="/images/queensferrycrossing-background.jpg"
             alt="Queensferry Crossing"
             fill
             priority
             className="object-cover"
+            style={{ objectPosition: "center 75%" }}
           />
         </div>
         <Image
@@ -24,7 +30,7 @@ export default function OfficerContact() {
       </header>
 
       <main className="flex-grow flex flex-col items-center text-center px-4">
-        <div className="-mt-16">
+        <div className="-mt-16 sm:-mt-20 relative">
           <Image
             src="/images/trafficofficercontact.png"
             alt="PC John Smith"
@@ -44,11 +50,18 @@ export default function OfficerContact() {
           <a href="tel:101" className="hover:opacity-75" aria-label="Phone">
             <PhoneIcon className="h-6 w-6" />
           </a>
-          <a href="mailto:folk_dragnet.2a@icloud.com" className="hover:opacity-75" aria-label="Email">
+          <a
+            href="mailto:folk_dragnet.2a@icloud.com"
+            className="hover:opacity-75"
+            aria-label="Email"
+          >
             <EnvelopeIcon className="h-6 w-6" />
           </a>
           <a href="#" className="hover:opacity-75" aria-label="Location">
             <MapPinIcon className="h-6 w-6" />
+          </a>
+          <a href="#" className="hover:opacity-75" aria-label="Badge">
+            <IdentificationIcon className="h-6 w-6" />
           </a>
         </div>
 
