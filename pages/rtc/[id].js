@@ -80,19 +80,47 @@ export default function RTCView() {
           )}
           <p>
             <span className="font-medium">Injuries:</span>{' '}
-            {value.injuries}
+          {value.injuries}
+        </p>
+        {value.injuries === 'Yes' && (
+          <p className="italic">
+            <span className="font-medium">Details:</span>{' '}
+            {value.injuryDetails}
           </p>
-          {value.injuries === 'Yes' && (
-            <p className="italic">
-              <span className="font-medium">Details:</span>{' '}
-              {value.injuryDetails}
+        )}
+        {value.location && (
+          <p>
+            <span className="font-medium">Location:</span>{' '}
+            {value.location}
+          </p>
+        )}
+        {value.lat && value.lng && (
+          <div className="mt-2">
+            <iframe
+              title="map"
+              width="100%"
+              height="300"
+              className="border rounded"
+              src={`https://www.openstreetmap.org/export/embed.html?bbox=${value.lng - 0.005},${value.lat - 0.005},${value.lng + 0.005},${value.lat + 0.005}&layer=mapnik&marker=${value.lat},${value.lng}`}
+            />
+            <p className="text-sm mt-1">
+              <a
+                href={`https://www.openstreetmap.org/?mlat=${value.lat}&mlon=${value.lng}#map=18/${value.lat}/${value.lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 underline"
+              >
+                View on OpenStreetMap
+              </a>
             </p>
-          )}
-          {value.officer && (
-            <p>
-              <span className="font-medium">Officer Dealing:</span>{' '}
-              {value.officer}
-            </p>
+            <p className="text-sm mt-1">Lat: {value.lat}, Lng: {value.lng}</p>
+          </div>
+        )}
+        {value.officer && (
+          <p>
+            <span className="font-medium">Officer Dealing:</span>{' '}
+            {value.officer}
+          </p>
           )}
         </div>
 
