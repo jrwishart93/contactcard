@@ -171,6 +171,15 @@ export default function Home() {
               </Link>
             </div>
           </section>
+
+          <div className="py-8 text-center">
+            <Link
+              href="/team"
+              className="inline-block px-6 py-3 bg-[#003b77] text-white rounded shadow hover:opacity-90 transition"
+            >
+              Team Contacts
+            </Link>
+          </div>
         </main>
 
         <Footer />
