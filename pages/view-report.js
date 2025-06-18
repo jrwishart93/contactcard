@@ -1,14 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 export default function ViewReport() {
+  const router = useRouter();
   const [form, setForm] = useState({
     stormRef: '',
     dateOfIncident: '',
     email: '',
   });
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    const { ref, date } = router.query;
+    setForm(prev => ({
+      ...prev,
+      stormRef: typeof ref === 'string' ? ref : prev.stormRef,
+      dateOfIncident: typeof date === 'string' ? date : prev.dateOfIncident,
+    }));
+  }, [router.isReady, router.query]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
