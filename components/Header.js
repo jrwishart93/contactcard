@@ -27,8 +27,8 @@ export default function Header() {
         <span className="sr-only">Police Scotland</span>
       </div>
       <nav>
-        <Link href="#team" className="hover:underline hover:text-primary">
-          Team Contacts
+        <Link href="/" className="hover:underline hover:text-primary">
+          Police Scotland
         </Link>
       </nav>
       <button aria-label="Toggle Dark Mode" onClick={toggle} className="ml-4">
