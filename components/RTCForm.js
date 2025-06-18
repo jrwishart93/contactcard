@@ -20,6 +20,8 @@ export default function RTCForm() {
     injuries: 'No',
     injuryDetails: '',
     officer: '',
+    email: '',
+    contactNumber: '',
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -61,6 +63,32 @@ export default function RTCForm() {
         ...formData,
         created: serverTimestamp(),
       });
+      // Send confirmation email using API route
+      try {
+        await fetch('/api/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            incidentNumber: docRef.id,
+            userId: docRef.id,
+            fullName: formData.driverName,
+            email: formData.email,
+            phone: formData.contactNumber,
+            constable: formData.officer,
+            location: formData.location,
+            vehicle: {
+              makeModel: formData.makeModel,
+              reg: formData.vehicleReg,
+            },
+            insurance: {
+              company: formData.insuranceCompany,
+              policyNumber: formData.policyNo,
+            },
+          }),
+        });
+      } catch (err) {
+        console.error('Failed to send confirmation email', err);
+      }
       router.push(`/rtc/${docRef.id}`);
     } catch (error) {
       console.error('Error adding document: ', error);
@@ -263,6 +291,31 @@ export default function RTCForm() {
             <option key={o.value} value={o.value}>{o.label}</option>
           ))}
         </select>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block font-medium">Email Address:</label>
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            className="mt-1 block w-full p-2 border rounded"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Contact Number:</label>
+          <input
+            type="tel"
+            name="contactNumber"
+            value={formData.contactNumber}
+            onChange={handleChange}
+            placeholder="Optional"
+            className="mt-1 block w-full p-2 border rounded"
+          />
+        </div>
       </div>
 
       <button
