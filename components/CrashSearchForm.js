@@ -17,7 +17,7 @@ export default function CrashSearchForm() {
     try {
       const yyyymmdd = date.replace(/-/g, '');
       const key = `PS-${yyyymmdd}-${stormRef}`;
-      const snap = await getDoc(doc(db, 'crashReports', key));
+      const snap = await getDoc(doc(db, 'rtc', key));
       if (snap.exists()) {
         setResult({ id: snap.id, ...snap.data() });
       } else {

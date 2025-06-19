@@ -8,7 +8,7 @@ if (!admin.apps.length) {
 exports.cleanupExpiredReports = functions.pubsub.schedule('every 24 hours').onRun(async (context) => {
   const db = admin.firestore();
   const now = Date.now();
-  const snapshot = await db.collection('crashReports').where('expiresAt', '<', now).get();
+  const snapshot = await db.collection('rtc').where('expiresAt', '<', now).get();
 
   const batch = db.batch();
   const deletedIds = [];
