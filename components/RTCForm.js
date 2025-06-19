@@ -12,7 +12,6 @@ export default function RTCForm() {
     makeModel: '',
     driverName: '',
     ownerName: '',
-    dob: '',
     postcode: '',
     houseNumber: '',
     address: '',
@@ -361,16 +360,6 @@ export default function RTCForm() {
           </div>
         </div>
       )}
-      <div>
-        <label className="block font-medium">Date of Birth:</label>
-        <input
-          type="date"
-          name="dob"
-          value={formData.dob}
-          onChange={handleChange}
-          className="mt-1 block w-full p-3 border rounded text-base"
-        />
-      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
         <div>
           <label className="block font-medium">Postcode:</label>
