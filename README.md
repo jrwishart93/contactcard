@@ -13,7 +13,21 @@ npm run dev
 
 ## Firebase Deployment
 
-Copy `.env.example` to `.env.local` and fill in your Firebase and Resend credentials. Deploy functions and hosting:
+Copy `.env.example` to `.env.local` and fill in your Firebase, Resend and base URL settings. The relevant environment variables are:
+
+```
+NEXT_PUBLIC_FIREBASE_API_KEY
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+NEXT_PUBLIC_FIREBASE_PROJECT_ID
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+NEXT_PUBLIC_FIREBASE_APP_ID
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+BASE_URL
+RESEND_API_KEY
+```
+
+The `.env.local` file is git ignored so your secrets remain private. Deploy functions and hosting:
 
 ```bash
 firebase deploy --only functions,hosting
