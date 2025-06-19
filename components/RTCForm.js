@@ -26,6 +26,9 @@ export default function RTCForm() {
     officer: '',
     email: '',
     contactNumber: '',
+    isDriverOwner: 'Yes',
+    ownerEmail: '',
+    ownerContactNumber: '',
   });
   const [submitting, setSubmitting] = useState(false);
   const [addresses, setAddresses] = useState([]);
@@ -294,17 +297,70 @@ export default function RTCForm() {
           />
         </div>
         <div>
-          <label className="block font-medium">Name of Owner:</label>
-          <input
-            type="text"
-            name="ownerName"
-            value={formData.ownerName}
-            onChange={handleChange}
-            placeholder="If different or company"
-            className="mt-1 block w-full p-3 border rounded text-base"
-          />
+          <label className="block font-medium">Is Driver the Owner?</label>
+          <div className="mt-1 flex items-center space-x-4">
+            <label>
+              <input
+                type="radio"
+                name="isDriverOwner"
+                value="Yes"
+                checked={formData.isDriverOwner === 'Yes'}
+                onChange={handleChange}
+                className="mr-1"
+              />
+              Yes
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="isDriverOwner"
+                value="No"
+                checked={formData.isDriverOwner === 'No'}
+                onChange={handleChange}
+                className="mr-1"
+              />
+              No
+            </label>
+          </div>
         </div>
       </div>
+      {formData.isDriverOwner === 'No' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block font-medium">Name of Owner:</label>
+            <input
+              type="text"
+              name="ownerName"
+              value={formData.ownerName}
+              onChange={handleChange}
+              placeholder="If different or company"
+              className="mt-1 block w-full p-3 border rounded text-base"
+            />
+          </div>
+          <div>
+            <label className="block font-medium">Owner Email:</label>
+            <input
+              type="email"
+              name="ownerEmail"
+              value={formData.ownerEmail}
+              onChange={handleChange}
+              placeholder="Optional"
+              className="mt-1 block w-full p-3 border rounded text-base"
+            />
+          </div>
+          <div>
+            <label className="block font-medium">Owner Contact Number:</label>
+            <input
+              type="tel"
+              name="ownerContactNumber"
+              value={formData.ownerContactNumber}
+              onChange={handleChange}
+              placeholder="Optional"
+              className="mt-1 block w-full p-3 border rounded text-base"
+            />
+          </div>
+        </div>
+      )}
       <div>
         <label className="block font-medium">Date of Birth:</label>
         <input
