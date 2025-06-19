@@ -35,10 +35,8 @@ export default function RTCForm() {
   const [addressLoading, setAddressLoading] = useState(false);
 
   const officers = [
-    { value: 'T329 PC Wishart', label: 'T329 PC Wishart' },
-    { value: 'T159 PC Niven', label: 'T159 PC Niven' },
-    { value: 'T123 PC Example1', label: 'T123 PC Example1' },
-    { value: 'T456 PC Example2', label: 'T456 PC Example2' },
+    { value: 'T123 PC John Smith', label: 'T123 PC John Smith' },
+    { value: 'T345 PC Jane Doe', label: 'T345 PC Jane Doe' },
   ];
 
   const handleChange = (e) => {

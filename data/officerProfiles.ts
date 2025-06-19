@@ -11,12 +11,12 @@ export const officerProfiles: (OfficerProfileProps & { id: string })[] = [
     profileImage: '/images/trafficofficercontact.png',
   },
   {
-    id: 'anna-smith',
-    name: 'PC Anna Smith',
-    badgeNumber: '654321',
-    collarNumber: 'R456',
-    unit: 'Community Policing',
-    email: 'anna.smith@scotland.police.uk',
+    id: 'jane-doe',
+    name: 'PC Jane Doe',
+    badgeNumber: '2345432',
+    collarNumber: 'T345',
+    unit: 'Road Policing Unit',
+    email: 'jane.doe@scotland.police.uk',
     profileImage: '/images/trafficofficercontact.png',
   },
 ];
