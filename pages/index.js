@@ -135,8 +135,14 @@ export default function Home() {
             </h2>
             <div className="max-w-5xl mx-auto space-y-16">
               <div className="md:flex md:items-center md:space-x-8">
-                <div className="md:w-1/2 h-48 bg-gray-100 rounded flex items-center justify-center text-gray-500">
-                  [ No Paperwork Visual ]
+                <div className="md:w-1/2 h-48 flex items-center justify-center">
+                  <Image
+                    src="/images/nopaperword-image.png"
+                    alt="Illustration showing no paperwork is required"
+                    width={400}
+                    height={192}
+                    className="object-contain h-full w-auto"
+                  />
                 </div>
                 <div className="md:w-1/2 mt-6 md:mt-0">
                   <h3 className="text-xl font-semibold mb-2">No Paperwork</h3>
@@ -148,8 +154,14 @@ export default function Home() {
               </div>
 
               <div className="md:flex md:items-center md:flex-row-reverse md:space-x-reverse md:space-x-8">
-                <div className="md:w-1/2 h-48 bg-gray-100 rounded flex items-center justify-center text-gray-500">
-                  [ GDPR Security Visual ]
+                <div className="md:w-1/2 h-48 flex items-center justify-center">
+                  <Image
+                    src="/images/gdpr-image.png"
+                    alt="Graphic emphasising GDPR compliant data security"
+                    width={400}
+                    height={192}
+                    className="object-contain h-full w-auto"
+                  />
                 </div>
                 <div className="md:w-1/2 mt-6 md:mt-0">
                   <h3 className="text-xl font-semibold mb-2">
