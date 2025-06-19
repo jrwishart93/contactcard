@@ -80,6 +80,13 @@ export default function RTCView() {
               {value.ownerName}
             </p>
           )}
+          {(value.ownerEmail || value.ownerContactNumber) && (
+            <div className="space-y-1">
+              <p className="font-medium">Owner Contact:</p>
+              {value.ownerEmail && <p>{value.ownerEmail}</p>}
+              {value.ownerContactNumber && <p>{value.ownerContactNumber}</p>}
+            </div>
+          )}
           <p>
             <span className="font-medium">Insurance Company:</span>{' '}
             {value.insuranceCompany}
