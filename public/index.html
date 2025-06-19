@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UK Postcode Lookup</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>UK Postcode Lookup</h1>
+  <form id="lookup-form">
+    <label for="postcode">Postcode:</label>
+    <input id="postcode" type="text" />
+    <button type="button" id="lookup-btn">Find address</button>
+  </form>
+
+  <div id="address-container" style="display: none;">
+    <label for="address-select">Select address:</label>
+    <select id="address-select"></select>
+  </div>
+
+  <div id="address-fields" style="display: none;">
+    <input id="line1" readonly placeholder="Address line 1" />
+    <input id="line2" readonly placeholder="Address line 2" />
+    <input id="town" readonly placeholder="Town" />
+    <input id="county" readonly placeholder="County" />
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
