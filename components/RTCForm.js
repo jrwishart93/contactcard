@@ -12,6 +12,7 @@ export default function RTCForm() {
     makeModel: '',
     driverName: '',
     ownerName: '',
+    dob: '',
     postcode: '',
     houseNumber: '',
     address: '',
@@ -124,6 +125,7 @@ export default function RTCForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 text-base">
+      <h2 className="text-lg font-semibold">Basic Details</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block font-medium">Date of Incident:</label>
@@ -143,6 +145,8 @@ export default function RTCForm() {
             name="policeRef"
             value={formData.policeRef}
             onChange={handleChange}
+            pattern="\d{4}"
+            maxLength={4}
             placeholder="If known"
             pattern="\\d{4}"
             maxLength={4}
@@ -150,128 +154,6 @@ export default function RTCForm() {
           />
         </div>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-        <div>
-          <label className="block font-medium">Postcode:</label>
-          <input
-            type="text"
-            name="postcode"
-            value={formData.postcode}
-            onChange={handleChange}
-            className="mt-1 block w-full p-3 border rounded text-base"
-          />
-        </div>
-        <div>
-          <label className="block font-medium">House No.</label>
-          <input
-            type="text"
-            name="houseNumber"
-            value={formData.houseNumber}
-            onChange={handleChange}
-            className="mt-1 block w-full p-3 border rounded text-base"
-          />
-        </div>
-      </div>
-
-      <div className="flex items-center space-x-2 mb-4">
-        <button
-          type="button"
-          onClick={lookupAddresses}
-          className="px-4 py-2 bg-gray-200 rounded"
-        >
-          {addressLoading ? 'Searching...' : 'Find Address'}
-        </button>
-        {addresses.length > 0 && (
-          <select
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            className="p-3 border rounded text-base"
-          >
-            <option value="">Select address</option>
-            {addresses.map(addr => (
-              <option key={addr} value={addr}>{addr}</option>
-            ))}
-          </select>
-        )}
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block font-medium">Vehicle Registration No.:</label>
-          <input
-            type="text"
-            name="vehicleReg"
-            value={formData.vehicleReg}
-            onChange={handleChange}
-            required
-            className="mt-1 block w-full p-3 border rounded text-base"
-          />
-        </div>
-        <div>
-          <label className="block font-medium">Make/Model:</label>
-          <input
-            type="text"
-            name="makeModel"
-            value={formData.makeModel}
-            onChange={handleChange}
-            required
-            className="mt-1 block w-full p-3 border rounded text-base"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block font-medium">Name of Driver:</label>
-          <input
-            type="text"
-            name="driverName"
-            value={formData.driverName}
-            onChange={handleChange}
-            required
-            className="mt-1 block w-full p-3 border rounded text-base"
-          />
-        </div>
-        <div>
-          <label className="block font-medium">Name of Owner:</label>
-          <input
-            type="text"
-            name="ownerName"
-            value={formData.ownerName}
-            onChange={handleChange}
-            placeholder="If different or company"
-            className="mt-1 block w-full p-3 border rounded text-base"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block font-medium">Insurance Company:</label>
-          <input
-            type="text"
-            name="insuranceCompany"
-            value={formData.insuranceCompany}
-            onChange={handleChange}
-            required
-            className="mt-1 block w-full p-3 border rounded text-base"
-          />
-        </div>
-        <div>
-          <label className="block font-medium">Policy No.:</label>
-          <input
-            type="text"
-            name="policyNo"
-            value={formData.policyNo}
-            onChange={handleChange}
-            placeholder="If known"
-            className="mt-1 block w-full p-3 border rounded text-base"
-          />
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
         <div>
           <label className="block font-medium">Location of Collision:</label>
@@ -313,7 +195,6 @@ export default function RTCForm() {
           </p>
         </div>
       )}
-
       <div>
         <label className="block font-medium">Injuries:</label>
         <div className="flex items-center space-x-4 mt-1">
@@ -351,21 +232,135 @@ export default function RTCForm() {
         )}
       </div>
 
-      <div>
-        <label className="block font-medium">Officer Dealing:</label>
-        <select
-          name="officer"
-          value={formData.officer}
-          onChange={handleChange}
-          className="mt-1 block w-full p-3 border rounded text-base"
-        >
-          <option value="">Select officer (if known)</option>
-          {officers.map(o => (
-            <option key={o.value} value={o.value}>{o.label}</option>
-          ))}
-        </select>
+      <h2 className="text-lg font-semibold">Vehicle Details</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block font-medium">Vehicle Registration No.:</label>
+          <input
+            type="text"
+            name="vehicleReg"
+            value={formData.vehicleReg}
+            onChange={handleChange}
+            required
+            className="mt-1 block w-full p-3 border rounded text-base"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Make/Model:</label>
+          <input
+            type="text"
+            name="makeModel"
+            value={formData.makeModel}
+            onChange={handleChange}
+            required
+            className="mt-1 block w-full p-3 border rounded text-base"
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block font-medium">Insurance Company:</label>
+          <input
+            type="text"
+            name="insuranceCompany"
+            value={formData.insuranceCompany}
+            onChange={handleChange}
+            required
+            className="mt-1 block w-full p-3 border rounded text-base"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Policy No.:</label>
+          <input
+            type="text"
+            name="policyNo"
+            value={formData.policyNo}
+            onChange={handleChange}
+            placeholder="If known"
+            className="mt-1 block w-full p-3 border rounded text-base"
+          />
+        </div>
       </div>
 
+      <h2 className="text-lg font-semibold">Driver Details</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block font-medium">Name of Driver:</label>
+          <input
+            type="text"
+            name="driverName"
+            value={formData.driverName}
+            onChange={handleChange}
+            required
+            className="mt-1 block w-full p-3 border rounded text-base"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">Name of Owner:</label>
+          <input
+            type="text"
+            name="ownerName"
+            value={formData.ownerName}
+            onChange={handleChange}
+            placeholder="If different or company"
+            className="mt-1 block w-full p-3 border rounded text-base"
+          />
+        </div>
+      </div>
+      <div>
+        <label className="block font-medium">Date of Birth:</label>
+        <input
+          type="date"
+          name="dob"
+          value={formData.dob}
+          onChange={handleChange}
+          className="mt-1 block w-full p-3 border rounded text-base"
+        />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+        <div>
+          <label className="block font-medium">Postcode:</label>
+          <input
+            type="text"
+            name="postcode"
+            value={formData.postcode}
+            onChange={handleChange}
+            className="mt-1 block w-full p-3 border rounded text-base"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">House No.</label>
+          <input
+            type="text"
+            name="houseNumber"
+            value={formData.houseNumber}
+            onChange={handleChange}
+            className="mt-1 block w-full p-3 border rounded text-base"
+          />
+        </div>
+      </div>
+      <div className="flex items-center space-x-2 mb-4">
+        <button
+          type="button"
+          onClick={lookupAddresses}
+          className="px-4 py-2 bg-gray-200 rounded"
+        >
+          {addressLoading ? 'Searching...' : 'Find Address'}
+        </button>
+        {addresses.length > 0 && (
+          <select
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+            className="p-3 border rounded text-base"
+          >
+            <option value="">Select address</option>
+            {addresses.map(addr => (
+              <option key={addr} value={addr}>{addr}</option>
+            ))}
+          </select>
+        )}
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block font-medium">Email Address:</label>
@@ -389,6 +384,21 @@ export default function RTCForm() {
             className="mt-1 block w-full p-3 border rounded text-base"
           />
         </div>
+      </div>
+
+      <h2 className="text-lg font-semibold">Officer Dealing</h2>
+      <div>
+        <select
+          name="officer"
+          value={formData.officer}
+          onChange={handleChange}
+          className="mt-1 block w-full p-3 border rounded text-base"
+        >
+          <option value="">Select officer (if known)</option>
+          {officers.map(o => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
       </div>
 
       <button
