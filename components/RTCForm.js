@@ -68,34 +68,32 @@ export default function RTCForm() {
           now.toMillis() + 30 * 24 * 60 * 60 * 1000
         ),
       });
-      // Send confirmation email using API route
-      try {
-        await fetch('/api/submit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            incidentNumber: docRef.id,
-            userId: docRef.id,
-            fullName: formData.driverName,
-            email: formData.email,
-            phone: formData.contactNumber,
-            constable: formData.officer,
-            location: formData.location,
-            incidentDate: formData.incidentDate,
-            policeRef: formData.policeRef,
-            vehicle: {
-              makeModel: formData.makeModel,
-              reg: formData.vehicleReg,
-            },
-            insurance: {
-              company: formData.insuranceCompany,
-              policyNumber: formData.policyNo,
-            },
-          }),
-        });
-      } catch (err) {
+      // Send confirmation email using API route, but don't block form submission
+      fetch('/api/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          incidentNumber: docRef.id,
+          userId: docRef.id,
+          fullName: formData.driverName,
+          email: formData.email,
+          phone: formData.contactNumber,
+          constable: formData.officer,
+          location: formData.location,
+          incidentDate: formData.incidentDate,
+          policeRef: formData.policeRef,
+          vehicle: {
+            makeModel: formData.makeModel,
+            reg: formData.vehicleReg,
+          },
+          insurance: {
+            company: formData.insuranceCompany,
+            policyNumber: formData.policyNo,
+          },
+        }),
+      }).catch((err) => {
         console.error('Failed to send confirmation email', err);
-      }
+      });
       router.push(`/rtc/${docRef.id}`);
     } catch (error) {
       console.error('Error adding document: ', error);
