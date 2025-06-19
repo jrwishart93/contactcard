@@ -12,6 +12,9 @@ export default function RTCForm() {
     makeModel: '',
     driverName: '',
     ownerName: '',
+    postcode: '',
+    houseNumber: '',
+    address: '',
     insuranceCompany: '',
     policyNo: '',
     location: '',
@@ -24,6 +27,8 @@ export default function RTCForm() {
     contactNumber: '',
   });
   const [submitting, setSubmitting] = useState(false);
+  const [addresses, setAddresses] = useState([]);
+  const [addressLoading, setAddressLoading] = useState(false);
 
   const officers = [
     { value: 'T329 PC Wishart', label: 'T329 PC Wishart' },
@@ -53,6 +58,24 @@ export default function RTCForm() {
       },
       () => alert('Unable to retrieve your location')
     );
+  };
+
+  const lookupAddresses = async () => {
+    if (!formData.postcode) return;
+    setAddressLoading(true);
+    setAddresses([]);
+    try {
+      const res = await fetch(
+        `/api/address-lookup?postcode=${encodeURIComponent(formData.postcode)}&house=${encodeURIComponent(formData.houseNumber)}`
+      );
+      if (!res.ok) throw new Error('failed');
+      const data = await res.json();
+      setAddresses(data.addresses || []);
+    } catch (err) {
+      console.error(err);
+      alert('Address lookup failed');
+    }
+    setAddressLoading(false);
   };
 
   const handleSubmit = async (e) => {
@@ -124,6 +147,52 @@ export default function RTCForm() {
             className="mt-1 block w-full p-3 border rounded text-base"
           />
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+        <div>
+          <label className="block font-medium">Postcode:</label>
+          <input
+            type="text"
+            name="postcode"
+            value={formData.postcode}
+            onChange={handleChange}
+            className="mt-1 block w-full p-3 border rounded text-base"
+          />
+        </div>
+        <div>
+          <label className="block font-medium">House No.</label>
+          <input
+            type="text"
+            name="houseNumber"
+            value={formData.houseNumber}
+            onChange={handleChange}
+            className="mt-1 block w-full p-3 border rounded text-base"
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center space-x-2 mb-4">
+        <button
+          type="button"
+          onClick={lookupAddresses}
+          className="px-4 py-2 bg-gray-200 rounded"
+        >
+          {addressLoading ? 'Searching...' : 'Find Address'}
+        </button>
+        {addresses.length > 0 && (
+          <select
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+            className="p-3 border rounded text-base"
+          >
+            <option value="">Select address</option>
+            {addresses.map(addr => (
+              <option key={addr} value={addr}>{addr}</option>
+            ))}
+          </select>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

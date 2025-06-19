@@ -46,6 +46,9 @@ export default function MergedReport() {
               <div key={s.id} className="border p-4 rounded">
                 <h2 className="font-semibold mb-2">Party {idx + 1}</h2>
                 <p><strong>Name:</strong> {s.fullName}</p>
+                {s.address && (
+                  <p><strong>Address:</strong> {s.address}</p>
+                )}
                 {s.vehicle && (
                   <p><strong>Vehicle:</strong> {s.vehicle.make} {s.vehicle.model} ({s.vehicle.colour}) - {s.vehicle.reg}</p>
                 )}
