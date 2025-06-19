@@ -62,12 +62,6 @@ export default function RTCView() {
             <span className="font-medium">Driver:</span>{' '}
             {value.driverName}
           </p>
-          {value.dob && (
-            <p>
-              <span className="font-medium">Date of Birth:</span>{' '}
-              {new Date(value.dob).toLocaleDateString()}
-            </p>
-          )}
           {value.address && (
             <p>
               <span className="font-medium">Address:</span>{' '}
