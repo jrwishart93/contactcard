@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, setDoc } from 'firebase/firestore';
 import { db } from '@/firebase/client';
 
 export default function RTCForm() {
@@ -59,17 +59,19 @@ export default function RTCForm() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const docRef = await addDoc(collection(db, 'rtc'), {
+      const incidentId = `PS-${formData.incidentDate.replace(/-/g, '')}-${formData.policeRef}`;
+      await setDoc(doc(db, 'rtc', incidentId), {
         ...formData,
         created: serverTimestamp(),
-      });
+        expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+      }, { merge: true });
       // Send confirmation email using API route, but don't block form submission
       fetch('/api/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          incidentNumber: docRef.id,
-          userId: docRef.id,
+          incidentNumber: incidentId,
+          userId: incidentId,
           fullName: formData.driverName,
           email: formData.email,
           phone: formData.contactNumber,
@@ -89,7 +91,7 @@ export default function RTCForm() {
       }).catch((err) => {
         console.error('Failed to send confirmation email', err);
       });
-      router.push(`/rtc/${docRef.id}`);
+      router.push(`/rtc/${incidentId}`);
     } catch (error) {
       console.error('Error adding document: ', error);
       alert('Failed to create report');

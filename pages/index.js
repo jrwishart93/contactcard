@@ -7,6 +7,7 @@ import { QrCodeIcon, ListBulletIcon, EnvelopeIcon } from '@heroicons/react/24/ou
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import ContactCard from '@/components/ContactCard'
+import ReportLookupForm from '@/components/ReportLookupForm'
 import { officers } from '@/data/officers'
 
 export default function Home() {
@@ -63,6 +64,17 @@ export default function Home() {
                   className="mx-auto"
                 />
               </div>
+            </div>
+          </section>
+
+          {/* FIND REPORT */}
+          <section className="bg-gray-50 py-12 px-4">
+            <div className="max-w-md mx-auto text-center">
+              <h2 className="text-2xl font-semibold mb-2">Find Your Crash Report</h2>
+              <p className="text-gray-700 mb-4">
+                Enter your details below to securely access your crash report. Reports are available for 30 days after submission.
+              </p>
+              <ReportLookupForm />
             </div>
           </section>
 
