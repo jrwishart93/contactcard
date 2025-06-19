@@ -148,8 +148,6 @@ export default function RTCForm() {
             pattern="\d{4}"
             maxLength={4}
             placeholder="If known"
-            pattern="\\d{4}"
-            maxLength={4}
             className="mt-1 block w-full p-3 border rounded text-base"
           />
         </div>
