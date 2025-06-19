@@ -20,6 +20,7 @@ export default async function handler(req, res) {
     incidentNumber,
     userId,
     fullName,
+    dob,
     email,
     constable,
     location,
@@ -33,6 +34,7 @@ export default async function handler(req, res) {
   try {
     await setDoc(doc(db, 'rtc', incidentNumber, 'submissions', userId), {
       fullName,
+      dob,
       email,
       constable,
       location,
@@ -46,6 +48,7 @@ export default async function handler(req, res) {
 
     const html = generateInitialEmailTemplate({
       fullName,
+      dob,
       email,
       constable,
       location,
@@ -74,6 +77,7 @@ export default async function handler(req, res) {
 
 function generateInitialEmailTemplate({
   fullName,
+  dob,
   email,
   constable,
   location,
@@ -121,6 +125,7 @@ function generateInitialEmailTemplate({
           <h1>Thank you for submitting your crash report</h1>
           <div class="info"><strong>Full Name:</strong> ${fullName}</div>
           <div class="info"><strong>Email:</strong> ${email}</div>
+          <div class="info"><strong>DOB:</strong> ${dob || ''}</div>
           <div class="info"><strong>Vehicle:</strong> ${vehicleDetails}</div>
           <div class="info"><strong>Insurance:</strong> ${insuranceDetails}</div>
           <div class="info"><strong>Constable:</strong> ${constable}</div>

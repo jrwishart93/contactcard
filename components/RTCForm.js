@@ -11,6 +11,7 @@ export default function RTCForm() {
     vehicleReg: '',
     makeModel: '',
     driverName: '',
+    dob: '',
     ownerName: '',
     postcode: '',
     houseNumber: '',
@@ -95,8 +96,9 @@ export default function RTCForm() {
         body: JSON.stringify({
           incidentNumber: incidentId,
           userId: incidentId,
-          fullName: formData.driverName,
-          email: formData.email,
+            fullName: formData.driverName,
+            dob: formData.dob,
+            email: formData.email,
           phone: formData.contactNumber,
           constable: formData.officer,
           location: formData.location,
@@ -240,6 +242,19 @@ export default function RTCForm() {
             value={formData.ownerName}
             onChange={handleChange}
             placeholder="If different or company"
+            className="mt-1 block w-full p-3 border rounded text-base"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block font-medium">Date of Birth:</label>
+          <input
+            type="date"
+            name="dob"
+            value={formData.dob}
+            onChange={handleChange}
             className="mt-1 block w-full p-3 border rounded text-base"
           />
         </div>

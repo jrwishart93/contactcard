@@ -62,6 +62,12 @@ export default function RTCView() {
             <span className="font-medium">Driver:</span>{' '}
             {value.driverName}
           </p>
+          {value.dob && (
+            <p>
+              <span className="font-medium">DOB:</span>{' '}
+              {value.dob}
+            </p>
+          )}
           {value.address && (
             <p>
               <span className="font-medium">Address:</span>{' '}
