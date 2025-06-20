@@ -10,7 +10,7 @@ export default function OfficersIndex() {
         {officerProfiles.map((officer) => (
           <Link key={officer.id} href={`/officers/${officer.id}`} className="border rounded-lg p-4 hover:shadow">
             <p className="font-semibold">{officer.name}</p>
-            <p className="text-sm text-gray-600">{officer.unit}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-300">{officer.unit}</p>
           </Link>
         ))}
       </main>

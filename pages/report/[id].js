@@ -36,7 +36,7 @@ export default function MergedReport() {
             <p><span className="font-medium">Officer:</span> {incident.officer}</p>
           )}
           {expiry && (
-            <p className="text-sm text-gray-600">Report available until {expiry.toLocaleDateString()}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-300">Report available until {expiry.toLocaleDateString()}</p>
           )}
         </div>
 

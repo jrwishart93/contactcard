@@ -33,7 +33,7 @@ export default function Home() {
             <h1 className="text-4xl md:text-5xl font-bold">
               Crash-Report in Seconds
             </h1>
-            <p className="mt-4 text-lg text-gray-800 max-w-2xl mx-auto">
+            <p className="mt-4 text-lg text-gray-800 dark:text-gray-300 max-w-2xl mx-auto">
               Scan the QR code on your officer’s card, enter your vehicle and
               insurance details, and get a complete report emailed—no paperwork.
             </p>
@@ -71,7 +71,7 @@ export default function Home() {
           <section className="bg-gray-50 py-12 px-4">
             <div className="max-w-md mx-auto text-center">
               <h2 className="text-2xl font-semibold mb-2">Find Your Crash Report</h2>
-              <p className="text-gray-700 mb-4">
+              <p className="text-gray-700 dark:text-gray-300 mb-4">
                 Enter your details below to securely access your crash report. Reports are available for 30 days after submission.
               </p>
               <ReportLookupForm />
@@ -93,7 +93,7 @@ export default function Home() {
                   <title>Scan QR code</title>
                 </QrCodeIcon>
                 <h3 className="font-semibold mb-2">Scan QR / Visit URL</h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-gray-300">
                   Pull out your phone, scan the code on our card or go to{' '}
                   <strong>crash-report.scot</strong>.
                 </p>
@@ -107,7 +107,7 @@ export default function Home() {
                   <title>Fill in your info</title>
                 </ListBulletIcon>
                 <h3 className="font-semibold mb-2">Fill in Your Info</h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-gray-300">
                   Enter your name, vehicle details, insurance info…
                 </p>
               </div>
@@ -120,7 +120,7 @@ export default function Home() {
                   <title>Get your email</title>
                 </EnvelopeIcon>
                 <h3 className="font-semibold mb-2">Get Your Email</h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-gray-300">
                   We’ll bundle everyone’s inputs plus the officer’s reference
                   into one secure PDF.
                 </p>
@@ -146,7 +146,7 @@ export default function Home() {
                 </div>
                 <div className="md:w-1/2 mt-6 md:mt-0">
                   <h3 className="text-xl font-semibold mb-2">No Paperwork</h3>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 dark:text-gray-300">
                     All crash details are captured digitally and emailed
                     instantly—no pens or forms required.
                   </p>
@@ -167,7 +167,7 @@ export default function Home() {
                   <h3 className="text-xl font-semibold mb-2">
                     Secure & GDPR-Compliant
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 dark:text-gray-300">
                     Encrypted storage on EU-hosted servers, auto-delete after 30
                     days.
                   </p>

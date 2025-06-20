@@ -130,20 +130,24 @@ export default function StatementForm() {
         <h3 className="font-semibold">Other Parties</h3>
         {otherParties.map((p, idx) => (
           <div key={idx} className="border p-2 mb-2">
-            <input
-              type="text"
-              placeholder="Name"
-              value={p.name}
-              onChange={(e) => handleOtherChange(idx, 'name', e.target.value)}
-              className="mt-1 block w-full p-2 border rounded mb-2"
-            />
-            <input
-              type="text"
-              placeholder="Contact"
-              value={p.contact}
-              onChange={(e) => handleOtherChange(idx, 'contact', e.target.value)}
-              className="mt-1 block w-full p-2 border rounded"
-            />
+            <label className="block text-sm font-medium">
+              Name
+              <input
+                type="text"
+                value={p.name}
+                onChange={(e) => handleOtherChange(idx, 'name', e.target.value)}
+                className="mt-1 block w-full p-2 border rounded mb-2"
+              />
+            </label>
+            <label className="block text-sm font-medium">
+              Contact
+              <input
+                type="text"
+                value={p.contact}
+                onChange={(e) => handleOtherChange(idx, 'contact', e.target.value)}
+                className="mt-1 block w-full p-2 border rounded"
+              />
+            </label>
           </div>
         ))}
         <button type="button" onClick={addOtherParty} className="px-4 py-2 bg-gray-200 rounded">Add Party</button>
@@ -152,19 +156,23 @@ export default function StatementForm() {
         <h3 className="font-semibold">Witness Information</h3>
         {witnesses.map((w, idx) => (
           <div key={idx} className="border p-2 mb-2">
-            <input
-              type="text"
-              placeholder="Name"
-              value={w.name}
-              onChange={(e) => handleWitnessChange(idx, 'name', e.target.value)}
-              className="mt-1 block w-full p-2 border rounded mb-2"
-            />
-            <textarea
-              placeholder="Statement"
-              value={w.statement}
-              onChange={(e) => handleWitnessChange(idx, 'statement', e.target.value)}
-              className="mt-1 block w-full p-2 border rounded"
-            />
+            <label className="block text-sm font-medium">
+              Name
+              <input
+                type="text"
+                value={w.name}
+                onChange={(e) => handleWitnessChange(idx, 'name', e.target.value)}
+                className="mt-1 block w-full p-2 border rounded mb-2"
+              />
+            </label>
+            <label className="block text-sm font-medium">
+              Statement
+              <textarea
+                value={w.statement}
+                onChange={(e) => handleWitnessChange(idx, 'statement', e.target.value)}
+                className="mt-1 block w-full p-2 border rounded"
+              />
+            </label>
           </div>
         ))}
         <button type="button" onClick={addWitness} className="px-4 py-2 bg-gray-200 rounded">Add Witness</button>
