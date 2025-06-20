@@ -11,6 +11,15 @@ npm install
 npm run dev
 ```
 
+## Testing
+
+Run the Jest test suite. **Ensure you run `npm install` first** so all dev dependencies are available in CI or your local environment:
+
+```bash
+npm install
+npm test
+```
+
 ## Firebase Deployment
 
 Copy `.env.example` to `.env.local` and fill in your Firebase, Resend and base URL settings. The relevant environment variables are:
