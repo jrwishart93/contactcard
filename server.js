@@ -1,14 +1,13 @@
 const express = require('express');
-const path = require('path');
+const next = require('next');
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+const server = express();
 
-// Serve static files (for index.html and main.js)
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve static assets from the public directory
+server.use(express.static('public'));
 
 // GET /api/uk-addresses?postcode=...
-app.get('/api/uk-addresses', async (req, res) => {
+server.get('/api/uk-addresses', async (req, res) => {
   const postcode = req.query.postcode ? req.query.postcode.toString().trim() : '';
   if (!postcode) {
     return res.status(400).json({ error: 'Postcode query parameter required' });
@@ -33,9 +32,17 @@ app.get('/api/uk-addresses', async (req, res) => {
 });
 
 if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`Server listening on port ${PORT}`);
+  const dev = process.env.NODE_ENV !== 'production';
+  const nextApp = next({ dev });
+  const handle = nextApp.getRequestHandler();
+  const PORT = process.env.PORT || 3000;
+
+  nextApp.prepare().then(() => {
+    server.all('*', (req, res) => handle(req, res));
+    server.listen(PORT, () => {
+      console.log(`Server listening on port ${PORT}`);
+    });
   });
 }
 
-module.exports = app;
+module.exports = server;
