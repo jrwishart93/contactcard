@@ -9,10 +9,13 @@ export default function NewStatement() {
         <h1 className="text-2xl sm:text-3xl mb-4">New Statement</h1>
         <StatementForm />
       </main>
-      <script id="statement-template" type="text/x-handlebars-template">
-        {{name}} gives the following statement on {{date}} at {{location}}.
-        {{description}}
-      </script>
+      <script
+        id="statement-template"
+        type="text/x-handlebars-template"
+        dangerouslySetInnerHTML={{
+          __html: `\n        {{name}} gives the following statement on {{date}} at {{location}}.\n        {{description}}\n      `,
+        }}
+      />
     </div>
   );
 }
