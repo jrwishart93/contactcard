@@ -36,11 +36,22 @@ BASE_URL
 RESEND_API_KEY
 OPENAI_API_KEY
 GETADDRESS_API_KEY
+NEXT_PUBLIC_MAPBOX_TOKEN
 ```
 
 Generate an OpenAI key from <https://platform.openai.com/account/api-keys> and add it as `OPENAI_API_KEY` in `.env.local`.
 
 `GETADDRESS_API_KEY` is used by the `/api/address-lookup` endpoint to retrieve addresses from getAddress.io.
+
+`NEXT_PUBLIC_MAPBOX_TOKEN` must be set to a Mapbox access token if you want to enable the interactive location picker on the RTC form.
+
+### Geocoding & Map Setup
+
+1. Create a free account at [Mapbox](https://www.mapbox.com/).
+2. Generate an access token and add it to `.env.local` as `NEXT_PUBLIC_MAPBOX_TOKEN`.
+3. Run `npm install` to pull any new map-related dependencies.
+
+Once configured the RTC form's location field will display an interactive map for picking coordinates.
 
 The `.env.local` file is git ignored so your secrets remain private. Deploy functions and hosting:
 
