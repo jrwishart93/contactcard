@@ -107,6 +107,12 @@ export default function RTCView() {
             {value.location}
           </p>
         )}
+        {value.locationNotes && (
+          <p>
+            <span className="font-medium">Location Notes:</span>{' '}
+            {value.locationNotes}
+          </p>
+        )}
         {value.lat && value.lng && (
           <div className="mt-2">
             <iframe

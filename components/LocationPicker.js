@@ -26,9 +26,7 @@ export default function LocationPicker({ value = {}, onChange }) {
         setSuggestions(res.body.features || []);
       })
       .catch(() => setSuggestions([]));
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [search, geocoder, token]);
 
   // Initialize map when coordinates selected
@@ -47,8 +45,8 @@ export default function LocationPicker({ value = {}, onChange }) {
           .setLngLat([value.lng, value.lat])
           .addTo(mapRef.current);
         markerRef.current.on('dragend', () => {
-          const lngLat = markerRef.current.getLngLat();
-          onChange({ ...value, lat: lngLat.lat.toFixed(6), lng: lngLat.lng.toFixed(6) });
+          const { lat, lng } = markerRef.current.getLngLat();
+          onChange({ ...value, lat: lat.toFixed(6), lng: lng.toFixed(6) });
         });
       })
       .catch((err) => {
@@ -57,7 +55,7 @@ export default function LocationPicker({ value = {}, onChange }) {
       });
   }, [token, value.lat, value.lng, onChange, value]);
 
-  // Update marker/map when coordinates change
+  // Update marker when coordinates change
   useEffect(() => {
     if (mapRef.current && markerRef.current) {
       mapRef.current.setCenter([value.lng, value.lat]);
@@ -65,24 +63,35 @@ export default function LocationPicker({ value = {}, onChange }) {
     }
   }, [value.lat, value.lng]);
 
+  // Fallback if no token or map failed
   if (!token || mapFailed) {
     return (
-      <div>
+      <div className="space-y-4">
+        <label className="block font-medium">Location of Collision:</label>
+        <input
+          type="text"
+          name="location"
+          value={value.location || ''}
+          onChange={(e) => onChange({ ...value, location: e.target.value })}
+          placeholder="Enter street or area"
+          className="mt-1 block w-full p-3 border rounded text-base"
+        />
+        <label className="block font-medium">Location Notes:</label>
         <textarea
-          name="location_notes"
+          name="locationNotes"
           value={value.locationNotes || ''}
           onChange={(e) => onChange({ ...value, locationNotes: e.target.value })}
+          placeholder="Additional information about the location"
           className="mt-1 block w-full p-3 border rounded text-base"
-          placeholder="Location notes"
         />
-        <input type="hidden" name="lat" value="" />
-        <input type="hidden" name="lng" value="" />
+        <input type="hidden" name="lat" value={value.lat || ''} />
+        <input type="hidden" name="lng" value={value.lng || ''} />
       </div>
     );
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
       <div>
         <label className="block font-medium">Location of Collision:</label>
         <input
@@ -93,7 +102,7 @@ export default function LocationPicker({ value = {}, onChange }) {
           className="mt-1 block w-full p-3 border rounded text-base"
         />
         {suggestions.length > 0 && (
-          <ul className="border rounded bg-white dark:bg-gray-800 max-h-40 overflow-auto mt-1">
+          <ul className="border rounded bg-white max-h-40 overflow-auto mt-1">
             {suggestions.map((feat) => (
               <li key={feat.id}>
                 <button
@@ -108,7 +117,7 @@ export default function LocationPicker({ value = {}, onChange }) {
                       lng: feat.center[0].toFixed(6),
                     });
                   }}
-                  className="block w-full text-left px-2 py-1 hover:bg-gray-200 dark:hover:bg-gray-700"
+                  className="block w-full text-left px-2 py-1 hover:bg-gray-200"
                 >
                   {feat.place_name}
                 </button>
@@ -120,12 +129,13 @@ export default function LocationPicker({ value = {}, onChange }) {
       {value.lat && value.lng && (
         <div ref={mapContainerRef} className="w-full h-64 border rounded" />
       )}
+      <label className="block font-medium">Location Notes:</label>
       <textarea
-        name="location_notes"
+        name="locationNotes"
         value={value.locationNotes || ''}
         onChange={(e) => onChange({ ...value, locationNotes: e.target.value })}
         placeholder="Additional location notes"
-        className="block w-full p-3 border rounded text-base"
+        className="mt-1 block w-full p-3 border rounded text-base"
       />
       <input type="hidden" name="lat" value={value.lat || ''} />
       <input type="hidden" name="lng" value={value.lng || ''} />
