@@ -11,9 +11,11 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
+    "@mapbox/mapbox-sdk": "^0.16.1",
     "express": "^4.19.2",
     "firebase": "^9.23.0",
     "handlebars": "^4.7.8",
+    "mapbox-gl": "^3.13.0",
     "next": "13.4.12",
     "openai": "^5.5.1",
     "qrcode.react": "^4.2.0",

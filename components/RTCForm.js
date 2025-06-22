@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
+
+const LocationPicker = dynamic(() => import('./LocationPicker'), { ssr: false });
 import { useRouter } from 'next/router';
 import { collection, addDoc, serverTimestamp, doc, setDoc } from 'firebase/firestore';
 import { db } from '@/firebase/client';
@@ -20,6 +23,7 @@ export default function RTCForm() {
     location: '',
     lat: '',
     lng: '',
+    locationNotes: '',
     injuries: 'No',
     injuryDetails: '',
     officer: '',
@@ -43,23 +47,6 @@ export default function RTCForm() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleUseLocation = () => {
-    if (!navigator.geolocation) {
-      alert('Geolocation is not supported by your browser');
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude, longitude } = pos.coords;
-        setFormData(prev => ({
-          ...prev,
-          lat: latitude.toFixed(6),
-          lng: longitude.toFixed(6),
-        }));
-      },
-      () => alert('Unable to retrieve your location')
-    );
-  };
 
   const lookupAddresses = async () => {
     if (!formData.postcode) return;
@@ -152,47 +139,15 @@ export default function RTCForm() {
           />
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-        <div>
-          <label className="block font-medium">Location of Collision:</label>
-          <input
-            type="text"
-            name="location"
-            value={formData.location}
-            onChange={handleChange}
-            placeholder="Enter street or area"
-            className="mt-1 block w-full p-3 border rounded text-base"
-          />
-        </div>
-        <button
-          type="button"
-          onClick={handleUseLocation}
-          className="px-6 py-3 rounded-full bg-gray-200 dark:bg-gray-700 text-base"
-        >
-          Use My Location
-        </button>
-      </div>
-      {formData.lat && formData.lng && (
-        <div className="mt-2">
-          <iframe
-            title="map"
-            width="100%"
-            height="300"
-            className="border rounded"
-            src={`https://www.openstreetmap.org/export/embed.html?bbox=${formData.lng - 0.005},${formData.lat - 0.005},${formData.lng + 0.005},${formData.lat + 0.005}&layer=mapnik&marker=${formData.lat},${formData.lng}`}
-          />
-          <p className="text-sm mt-1">
-            <a
-              href={`https://www.openstreetmap.org/?mlat=${formData.lat}&mlon=${formData.lng}#map=18/${formData.lat}/${formData.lng}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 underline"
-            >
-              View on OpenStreetMap
-            </a>
-          </p>
-        </div>
-      )}
+      <LocationPicker
+        value={{
+          location: formData.location,
+          lat: formData.lat,
+          lng: formData.lng,
+          locationNotes: formData.locationNotes,
+        }}
+        onChange={(vals) => setFormData((prev) => ({ ...prev, ...vals }))}
+      />
       <div>
         <label className="block font-medium">Injuries:</label>
         <div className="flex items-center space-x-4 mt-1">
