@@ -31,6 +31,7 @@ export default async function handler(req, res) {
     email,
     constable,
     location,
+    locationNotes,
     vehicle,
     insurance,
     incidentDate,
@@ -44,6 +45,7 @@ export default async function handler(req, res) {
       email,
       constable,
       location,
+      locationNotes,
       vehicle,
       insurance,
       incidentDate,
@@ -57,6 +59,7 @@ export default async function handler(req, res) {
       email,
       constable,
       location,
+      locationNotes,
       incidentNumber,
       incidentDate,
       policeRef,
@@ -85,6 +88,7 @@ function generateInitialEmailTemplate({
   email,
   constable,
   location,
+  locationNotes,
   incidentNumber,
   incidentDate,
   policeRef,
@@ -133,6 +137,7 @@ function generateInitialEmailTemplate({
           <div class="info"><strong>Insurance:</strong> ${insuranceDetails}</div>
           <div class="info"><strong>Constable:</strong> ${constable}</div>
           <div class="info"><strong>Location:</strong> ${location}</div>
+          ${locationNotes ? `<div class="info"><strong>Location Notes:</strong> ${locationNotes}</div>` : ''}
           <div class="info"><strong>Date of Incident:</strong> ${incidentDate ? new Date(incidentDate).toLocaleDateString() : ''}</div>
           <div class="info"><strong>Ref:</strong> ${policeRef}</div>
           <p class="message">

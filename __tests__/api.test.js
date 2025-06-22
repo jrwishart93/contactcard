@@ -75,6 +75,7 @@ describe('/api/submit', () => {
         email: 'test@example.com',
         constable: 'c',
         location: 'loc',
+        locationNotes: 'notes',
         vehicle: {},
         insurance: {},
       });
