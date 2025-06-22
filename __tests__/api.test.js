@@ -23,8 +23,14 @@ jest.mock('resend', () => {
   return { __esModule: true, Resend: jest.fn().mockImplementation(() => ({ emails: { send } })), _send: send };
 });
 
+jest.mock('../firebase/config', () => ({
+  firebaseConfig: {},
+  validateConfig: jest.fn(),
+}));
+
 const { setDoc, getDoc, getDocs } = require('firebase/firestore');
 const { Resend, _send: emailsSend } = require('resend');
+const { validateConfig } = require('../firebase/config');
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -82,6 +88,7 @@ describe('/api/submit', () => {
     expect(res.status).toBe(200);
     expect(setDoc).toHaveBeenCalled();
     expect(emailsSend).toHaveBeenCalled();
+    expect(validateConfig).toHaveBeenCalled();
   });
 });
 
@@ -97,6 +104,7 @@ describe('/api/report-lookup', () => {
   it('returns 400 if missing params', async () => {
     const res = await request(app).post('/api/report-lookup').send({});
     expect(res.status).toBe(400);
+    expect(validateConfig).toHaveBeenCalled();
   });
 
   it('returns incident data when found', async () => {
@@ -109,6 +117,7 @@ describe('/api/report-lookup', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.incident.id).toContain('PS-');
+    expect(validateConfig).toHaveBeenCalled();
   });
 });
 
@@ -183,6 +192,7 @@ describe('/api/final-summary', () => {
       .post('/api/final-summary?id=ID1')
       .send({ officerEmail: 'o@b.com' });
     expect(res.status).toBe(404);
+    expect(validateConfig).toHaveBeenCalled();
   });
 
   it('sends summary email', async () => {
@@ -195,5 +205,6 @@ describe('/api/final-summary', () => {
 
     expect(res.status).toBe(200);
     expect(emailsSend).toHaveBeenCalled();
+    expect(validateConfig).toHaveBeenCalled();
   });
 });

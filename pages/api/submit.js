@@ -1,28 +1,25 @@
 import { Resend } from 'resend';
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
+import { firebaseConfig } from '../../firebase/config';
 import validateConfig from '../../firebase/validateConfig';
 
-// Validate Firebase configuration before using it
+// Validate Firebase configuration before anything else
 validateConfig();
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
-};
-
-if (!getApps().length) initializeApp(firebaseConfig);
-const db = getFirestore();
-
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
+  if (req.method !== 'POST') {
+    return res.status(405).end();
+  }
+
+  // Re-validate and initialize Firebase if needed
+  validateConfig();
+  if (!getApps().length) {
+    initializeApp(firebaseConfig);
+  }
+  const db = getFirestore();
 
   const {
     incidentNumber,
@@ -36,21 +33,43 @@ export default async function handler(req, res) {
     incidentDate,
     policeRef,
     phone,
-  } = req.body;
+  } = req.body || {};
+
+  if (
+    !incidentNumber ||
+    !userId ||
+    !fullName ||
+    !email ||
+    !incidentDate ||
+    !policeRef
+  ) {
+    return res.status(400).json({ error: 'Missing parameters' });
+  }
 
   try {
-    await setDoc(doc(db, 'rtc', incidentNumber, 'submissions', userId), {
-      fullName,
-      email,
-      constable,
-      location,
-      vehicle,
-      insurance,
-      incidentDate,
-      policeRef,
-      phone,
-      submittedAt: new Date(),
-    });
+    await setDoc(
+      doc(db, 'rtc', incidentNumber, 'submissions', userId),
+      {
+        fullName,
+        email,
+        constable,
+        location,
+        vehicle,
+        insurance,
+        incidentDate,
+        policeRef,
+        phone,
+        submittedAt: new Date(),
+      }
+    );
+
+    const vehicleDetails = vehicle.makeModel
+      ? vehicle.makeModel
+      : `${vehicle.make || ''} ${vehicle.model || ''}`.trim() +
+        (vehicle.colour ? ` (${vehicle.colour})` : '') +
+        ` - ${vehicle.reg || ''}`;
+
+    const insuranceDetails = `${insurance.company || ''} - Policy ${insurance.policyNumber || ''}`;
 
     const html = generateInitialEmailTemplate({
       fullName,
@@ -60,23 +79,21 @@ export default async function handler(req, res) {
       incidentNumber,
       incidentDate,
       policeRef,
-      vehicleDetails: `${
-        vehicle.makeModel || `${vehicle.make || ''} ${vehicle.model || ''}`
-      } ${vehicle.colour ? `(${vehicle.colour})` : ''} - ${vehicle.reg || ''}`.trim(),
-      insuranceDetails: `${insurance.company || ''} - Policy ${insurance.policyNumber || ''}`,
+      vehicleDetails,
+      insuranceDetails,
     });
 
     await resend.emails.send({
       from: 'Police Scotland <noreply@resend.dev>',
       to: email,
       subject: 'Crash Report Confirmation',
-      html
+      html,
     });
 
-    res.status(200).json({ success: true });
+    return res.status(200).json({ success: true });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 }
 
@@ -91,6 +108,10 @@ function generateInitialEmailTemplate({
   vehicleDetails,
   insuranceDetails,
 }) {
+  const formattedDate = incidentDate
+    ? new Date(incidentDate).toLocaleDateString('en-GB')
+    : '';
+
   return `
     <!DOCTYPE html>
     <html>
@@ -133,7 +154,7 @@ function generateInitialEmailTemplate({
           <div class="info"><strong>Insurance:</strong> ${insuranceDetails}</div>
           <div class="info"><strong>Constable:</strong> ${constable}</div>
           <div class="info"><strong>Location:</strong> ${location}</div>
-          <div class="info"><strong>Date of Incident:</strong> ${incidentDate ? new Date(incidentDate).toLocaleDateString() : ''}</div>
+          <div class="info"><strong>Date of Incident:</strong> ${formattedDate}</div>
           <div class="info"><strong>Ref:</strong> ${policeRef}</div>
           <p class="message">
             We’ve received your submission. Once all other parties involved have entered their details and the officer has reviewed the information, a full summary report will be sent to you and others involved.
