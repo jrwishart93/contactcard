@@ -1,6 +1,10 @@
 import { Resend } from 'resend';
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
+import validateConfig from '../../firebase/validateConfig';
+
+// Validate Firebase configuration before using it
+validateConfig();
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 

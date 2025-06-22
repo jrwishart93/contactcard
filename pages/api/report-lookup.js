@@ -1,5 +1,9 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore, doc, getDoc, collection, getDocs } from 'firebase/firestore';
+import validateConfig from '../../firebase/validateConfig';
+
+// Validate Firebase configuration before using it
+validateConfig();
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
