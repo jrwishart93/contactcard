@@ -35,9 +35,12 @@ NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 BASE_URL
 RESEND_API_KEY
 OPENAI_API_KEY
+GETADDRESS_API_KEY
 ```
 
 Generate an OpenAI key from <https://platform.openai.com/account/api-keys> and add it as `OPENAI_API_KEY` in `.env.local`.
+
+`GETADDRESS_API_KEY` is used by the `/api/address-lookup` endpoint to retrieve addresses from getAddress.io.
 
 The `.env.local` file is git ignored so your secrets remain private. Deploy functions and hosting:
 
