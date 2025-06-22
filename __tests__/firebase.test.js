@@ -43,12 +43,12 @@ afterEach(() => {
 describe('firebase config validation', () => {
   it('throws error when env vars missing', () => {
     delete process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
-    expect(() => require('../firebase/client')).toThrow(
-      /NEXT_PUBLIC_FIREBASE_API_KEY/
-    );
+    const { default: validateConfig } = require('../firebase/validateConfig');
+    expect(() => validateConfig()).toThrow(/NEXT_PUBLIC_FIREBASE_API_KEY/);
   });
 
   it('does not throw when all vars present', () => {
-    expect(() => require('../firebase/client')).not.toThrow();
+    const { default: validateConfig } = require('../firebase/validateConfig');
+    expect(() => validateConfig()).not.toThrow();
   });
 });

@@ -47,9 +47,12 @@ describe('firebase config validation for API routes', () => {
     '../pages/api/final-summary.js',
   ];
 
-  test.each(modules)('%s throws when env vars missing', mod => {
+  test.each(modules)('%s throws when env vars missing', async mod => {
     delete process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
-    expect(() => require(mod)).toThrow(/NEXT_PUBLIC_FIREBASE_API_KEY/);
+    const handler = require(mod).default;
+    await expect(handler({ method: 'POST', body: {}, query: {} }, {})).rejects.toThrow(
+      /NEXT_PUBLIC_FIREBASE_API_KEY/
+    );
   });
 });
 
