@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { serverTimestamp, doc, setDoc } from 'firebase/firestore';
 import { db } from '@/firebase/client';
-import LocationPicker from './LocationPicker';
+
+const LocationPicker = dynamic(() => import('./LocationPicker'), { ssr: false });
 
 export default function RTCForm() {
   const router = useRouter();
@@ -21,6 +23,7 @@ export default function RTCForm() {
     location: '',
     lat: '',
     lng: '',
+    locationNotes: '',
     injuries: 'No',
     injuryDetails: '',
     officer: '',
@@ -29,7 +32,6 @@ export default function RTCForm() {
     isDriverOwner: 'Yes',
     ownerEmail: '',
     ownerContactNumber: '',
-    locationNotes: '',
   });
   const [submitting, setSubmitting] = useState(false);
   const [addresses, setAddresses] = useState([]);
@@ -45,7 +47,6 @@ export default function RTCForm() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-
   const lookupAddresses = async () => {
     if (!formData.postcode) return;
     setAddressLoading(true);
@@ -54,14 +55,15 @@ export default function RTCForm() {
       const res = await fetch(
         `/api/address-lookup?postcode=${encodeURIComponent(formData.postcode)}&house=${encodeURIComponent(formData.houseNumber)}`
       );
-      if (!res.ok) throw new Error('failed');
+      if (!res.ok) throw new Error('Address lookup failed');
       const data = await res.json();
       setAddresses(data.addresses || []);
     } catch (err) {
       console.error(err);
       alert('Address lookup failed');
+    } finally {
+      setAddressLoading(false);
     }
-    setAddressLoading(false);
   };
 
   const handleSubmit = async (e) => {
@@ -69,12 +71,17 @@ export default function RTCForm() {
     setSubmitting(true);
     try {
       const incidentId = `PS-${formData.incidentDate.replace(/-/g, '')}-${formData.policeRef}`;
-      await setDoc(doc(db, 'rtc', incidentId), {
-        ...formData,
-        created: serverTimestamp(),
-        expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
-      }, { merge: true });
-      // Send confirmation email using API route, but don't block form submission
+      await setDoc(
+        doc(db, 'rtc', incidentId),
+        {
+          ...formData,
+          created: serverTimestamp(),
+          expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+        },
+        { merge: true }
+      );
+
+      // fire-and-forget email
       fetch('/api/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -101,16 +108,19 @@ export default function RTCForm() {
       }).catch((err) => {
         console.error('Failed to send confirmation email', err);
       });
+
       router.push(`/rtc/${incidentId}`);
     } catch (error) {
-      console.error('Error adding document: ', error);
+      console.error('Error adding document:', error);
       alert('Failed to create report');
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 text-base">
+      {/* Basic Details */}
       <h2 className="text-lg font-semibold">Basic Details</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -121,7 +131,7 @@ export default function RTCForm() {
             value={formData.incidentDate}
             onChange={handleChange}
             required
-            className="mt-1 block w-full p-3 border rounded text-base"
+            className="mt-1 block w-full p-3 border rounded"
           />
         </div>
         <div>
@@ -134,36 +144,39 @@ export default function RTCForm() {
             pattern="\d{4}"
             maxLength={4}
             placeholder="If known"
-            className="mt-1 block w-full p-3 border rounded text-base"
+            className="mt-1 block w-full p-3 border rounded"
           />
         </div>
       </div>
-      <LocationPicker formData={formData} setFormData={setFormData} />
+
+      {/* Location Picker */}
+      <LocationPicker
+        value={{
+          location: formData.location,
+          lat: formData.lat,
+          lng: formData.lng,
+          locationNotes: formData.locationNotes,
+        }}
+        onChange={(vals) => setFormData(prev => ({ ...prev, ...vals }))}
+      />
+
+      {/* Injuries */}
       <div>
         <label className="block font-medium">Injuries:</label>
         <div className="flex items-center space-x-4 mt-1">
-          <label>
-            <input
-              type="radio"
-              name="injuries"
-              value="Yes"
-              checked={formData.injuries === 'Yes'}
-              onChange={handleChange}
-              className="mr-1"
-            />
-            Yes
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="injuries"
-              value="No"
-              checked={formData.injuries === 'No'}
-              onChange={handleChange}
-              className="mr-1"
-            />
-            No
-          </label>
+          {['Yes', 'No'].map(option => (
+            <label key={option}>
+              <input
+                type="radio"
+                name="injuries"
+                value={option}
+                checked={formData.injuries === option}
+                onChange={handleChange}
+                className="mr-1"
+              />
+              {option}
+            </label>
+          ))}
         </div>
         {formData.injuries === 'Yes' && (
           <textarea
@@ -171,22 +184,23 @@ export default function RTCForm() {
             value={formData.injuryDetails}
             onChange={handleChange}
             placeholder="Brief details of injuries"
-            className="mt-2 block w-full p-3 border rounded text-base"
+            className="mt-2 block w-full p-3 border rounded"
           />
         )}
       </div>
 
+      {/* Vehicle Details */}
       <h2 className="text-lg font-semibold">Vehicle Details</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block font-medium">Vehicle Registration No.:</label>
+          <label className="block font-medium">Registration No.:</label>
           <input
             type="text"
             name="vehicleReg"
             value={formData.vehicleReg}
             onChange={handleChange}
             required
-            className="mt-1 block w-full p-3 border rounded text-base"
+            className="mt-1 block w-full p-3 border rounded"
           />
         </div>
         <div>
@@ -197,10 +211,11 @@ export default function RTCForm() {
             value={formData.makeModel}
             onChange={handleChange}
             required
-            className="mt-1 block w-full p-3 border rounded text-base"
+            className="mt-1 block w-full p-3 border rounded"
           />
         </div>
       </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block font-medium">Insurance Company:</label>
@@ -210,7 +225,7 @@ export default function RTCForm() {
             value={formData.insuranceCompany}
             onChange={handleChange}
             required
-            className="mt-1 block w-full p-3 border rounded text-base"
+            className="mt-1 block w-full p-3 border rounded"
           />
         </div>
         <div>
@@ -221,11 +236,12 @@ export default function RTCForm() {
             value={formData.policyNo}
             onChange={handleChange}
             placeholder="If known"
-            className="mt-1 block w-full p-3 border rounded text-base"
+            className="mt-1 block w-full p-3 border rounded"
           />
         </div>
       </div>
 
+      {/* Driver & Owner Details */}
       <h2 className="text-lg font-semibold">Driver Details</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -236,34 +252,25 @@ export default function RTCForm() {
             value={formData.driverName}
             onChange={handleChange}
             required
-            className="mt-1 block w-full p-3 border rounded text-base"
+            className="mt-1 block w-full p-3 border rounded"
           />
         </div>
         <div>
           <label className="block font-medium">Is Driver the Owner?</label>
           <div className="mt-1 flex items-center space-x-4">
-            <label>
-              <input
-                type="radio"
-                name="isDriverOwner"
-                value="Yes"
-                checked={formData.isDriverOwner === 'Yes'}
-                onChange={handleChange}
-                className="mr-1"
-              />
-              Yes
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="isDriverOwner"
-                value="No"
-                checked={formData.isDriverOwner === 'No'}
-                onChange={handleChange}
-                className="mr-1"
-              />
-              No
-            </label>
+            {['Yes', 'No'].map(option => (
+              <label key={option}>
+                <input
+                  type="radio"
+                  name="isDriverOwner"
+                  value={option}
+                  checked={formData.isDriverOwner === option}
+                  onChange={handleChange}
+                  className="mr-1"
+                />
+                {option}
+              </label>
+            ))}
           </div>
         </div>
       </div>
@@ -277,7 +284,7 @@ export default function RTCForm() {
               value={formData.ownerName}
               onChange={handleChange}
               placeholder="If different or company"
-              className="mt-1 block w-full p-3 border rounded text-base"
+              className="mt-1 block w-full p-3 border rounded"
             />
           </div>
           <div>
@@ -287,23 +294,23 @@ export default function RTCForm() {
               name="ownerEmail"
               value={formData.ownerEmail}
               onChange={handleChange}
-              placeholder="Optional"
-              className="mt-1 block w-full p-3 border rounded text-base"
+              className="mt-1 block w-full p-3 border rounded"
             />
           </div>
           <div>
-            <label className="block font-medium">Owner Contact Number:</label>
+            <label className="block font-medium">Owner Contact No.:</label>
             <input
               type="tel"
               name="ownerContactNumber"
               value={formData.ownerContactNumber}
               onChange={handleChange}
-              placeholder="Optional"
-              className="mt-1 block w-full p-3 border rounded text-base"
+              className="mt-1 block w-full p-3 border rounded"
             />
           </div>
         </div>
       )}
+
+      {/* Address Lookup */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
         <div>
           <label className="block font-medium">Postcode:</label>
@@ -312,17 +319,17 @@ export default function RTCForm() {
             name="postcode"
             value={formData.postcode}
             onChange={handleChange}
-            className="mt-1 block w-full p-3 border rounded text-base"
+            className="mt-1 block w-full p-3 border rounded"
           />
         </div>
         <div>
-          <label className="block font-medium">House No.</label>
+          <label className="block font-medium">House No.:</label>
           <input
             type="text"
             name="houseNumber"
             value={formData.houseNumber}
             onChange={handleChange}
-            className="mt-1 block w-full p-3 border rounded text-base"
+            className="mt-1 block w-full p-3 border rounded"
           />
         </div>
       </div>
@@ -339,7 +346,7 @@ export default function RTCForm() {
             name="address"
             value={formData.address}
             onChange={handleChange}
-            className="p-3 border rounded text-base"
+            className="p-3 border rounded"
           >
             <option value="">Select address</option>
             {addresses.map(addr => (
@@ -348,50 +355,49 @@ export default function RTCForm() {
           </select>
         )}
       </div>
+
+      {/* Contact & Officer */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block font-medium">Email Address:</label>
+          <label className="block font-medium">Email:</label>
           <input
             type="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
             required
-            className="mt-1 block w-full p-3 border rounded text-base"
+            className="mt-1 block w-full p-3 border rounded"
           />
         </div>
         <div>
-          <label className="block font-medium">Contact Number:</label>
+          <label className="block font-medium">Contact No.:</label>
           <input
             type="tel"
             name="contactNumber"
             value={formData.contactNumber}
             onChange={handleChange}
-            placeholder="Optional"
-            className="mt-1 block w-full p-3 border rounded text-base"
+            className="mt-1 block w-full p-3 border rounded"
           />
         </div>
       </div>
 
       <h2 className="text-lg font-semibold">Officer Dealing</h2>
-      <div>
-        <select
-          name="officer"
-          value={formData.officer}
-          onChange={handleChange}
-          className="mt-1 block w-full p-3 border rounded text-base"
-        >
-          <option value="">Select officer (if known)</option>
-          {officers.map(o => (
-            <option key={o.value} value={o.value}>{o.label}</option>
-          ))}
-        </select>
-      </div>
+      <select
+        name="officer"
+        value={formData.officer}
+        onChange={handleChange}
+        className="mt-1 block w-full p-3 border rounded"
+      >
+        <option value="">Select officer (if known)</option>
+        {officers.map(o => (
+          <option key={o.value} value={o.value}>{o.label}</option>
+        ))}
+      </select>
 
       <button
         type="submit"
         disabled={submitting}
-        className="px-6 py-3 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition text-base"
+        className="px-6 py-3 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition"
       >
         {submitting ? 'Saving...' : 'Submit Report'}
       </button>
