@@ -54,22 +54,15 @@ export default function StatementForm() {
       text = template({ ...formData, otherParties, witnesses });
     } else {
       try {
-        const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        const res = await fetch('/api/generate-statement', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
           },
-          body: JSON.stringify({
-            model: 'gpt-3.5-turbo',
-            messages: [
-              { role: 'system', content: 'You are a police administrative assistant...' },
-              { role: 'user', content: JSON.stringify({ ...formData, otherParties, witnesses }) },
-            ],
-          }),
+          body: JSON.stringify({ ...formData, otherParties, witnesses }),
         });
         const data = await res.json();
-        text = data.choices?.[0]?.message?.content || '';
+        text = data.text || '';
       } catch (err) {
         console.error(err);
         text = 'Failed to generate statement';
