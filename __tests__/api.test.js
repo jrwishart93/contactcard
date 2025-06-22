@@ -38,8 +38,25 @@ beforeEach(() => {
   process.env.NEXT_PUBLIC_FIREBASE_API_KEY = 'test';
   process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN = 'test';
   process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID = 'test';
+  process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET = 'test';
+  process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID = 'test';
+  process.env.NEXT_PUBLIC_FIREBASE_APP_ID = 'test';
+  process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID = 'test';
   process.env.GETADDRESS_API_KEY = 'test';
   process.env.BASE_URL = 'http://localhost';
+});
+
+describe('firebase config validation for API routes', () => {
+  const modules = [
+    '../pages/api/submit.js',
+    '../pages/api/report-lookup.js',
+    '../pages/api/final-summary.js',
+  ];
+
+  test.each(modules)('%s throws when env vars missing', mod => {
+    delete process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+    expect(() => require(mod)).toThrow(/NEXT_PUBLIC_FIREBASE_API_KEY/);
+  });
 });
 
 describe('/api/submit', () => {
