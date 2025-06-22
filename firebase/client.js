@@ -2,10 +2,6 @@
 import { initializeApp, getApp, getApps } from 'firebase/app';
 import { getAnalytics } from 'firebase/analytics';
 import { getFirestore, setLogLevel } from 'firebase/firestore';
-import validateConfig from './validateConfig';
-
-// Ensure required environment variables are present
-validateConfig();
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
