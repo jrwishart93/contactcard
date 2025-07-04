@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { PhoneIcon, EnvelopeIcon, MapPinIcon, IdentificationIcon } from '@heroicons/react/24/outline';
 import type { FC } from 'react';
 import { generateVCard } from '@/utils/vcard';
@@ -35,12 +36,14 @@ const OfficerProfile: FC<OfficerProfileProps> = ({
           priority
         />
         <div className="absolute top-4 right-4 w-24 sm:w-32">
-          <Image
-            src="/images/police-scotland-logo-2.png"
-            alt="Police Scotland logo"
-            width={128}
-            height={128}
-          />
+          <Link href="/">
+            <Image
+              src="/images/police-scotland-logo-2.png"
+              alt="Police Scotland logo"
+              width={128}
+              height={128}
+            />
+          </Link>
         </div>
         <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-white shadow-lg overflow-hidden">
           <Image
