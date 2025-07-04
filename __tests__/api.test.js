@@ -143,7 +143,7 @@ describe('/api/sendEmail', () => {
     const handler = require('../pages/api/sendEmail.js').default;
     app = express();
     app.use(express.json());
-    app.post('/api/sendEmail', (req, res) => handler(req, res));
+    app.all('/api/sendEmail', (req, res) => handler(req, res));
   });
 
   it('proxies request and returns ok', async () => {
@@ -154,6 +154,11 @@ describe('/api/sendEmail', () => {
     expect(res.status).toBe(200);
     expect(global.fetch).toHaveBeenCalled();
   });
+
+  it('rejects non-POST requests', async () => {
+    const res = await request(app).get('/api/sendEmail');
+    expect(res.status).toBe(405);
+  });
 });
 
 describe('/api/resend', () => {
@@ -161,14 +166,20 @@ describe('/api/resend', () => {
   beforeEach(() => {
     const handler = require('../pages/api/resend.js').default;
     app = express();
-    app.get('/api/resend', (req, res) => handler(req, res));
+    app.use(express.json());
+    app.all('/api/resend', (req, res) => handler(req, res));
   });
 
   it('calls sendEmail endpoint', async () => {
     global.fetch = jest.fn().mockResolvedValue({});
-    const res = await request(app).get('/api/resend').query({ id: '123' });
+    const res = await request(app).post('/api/resend').send({ id: '123' });
     expect(res.status).toBe(200);
     expect(global.fetch).toHaveBeenCalled();
+  });
+
+  it('rejects non-POST requests', async () => {
+    const res = await request(app).get('/api/resend');
+    expect(res.status).toBe(405);
   });
 });
 

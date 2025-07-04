@@ -1,5 +1,6 @@
 // pages/api/sendEmail.js
 export default async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).end();
   try {
     await fetch(process.env.BASE_URL + '/sendEmail', {
       method: 'POST',
