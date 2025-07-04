@@ -8,6 +8,7 @@ export interface OfficerProfileProps {
   collarNumber: string;
   unit: string;
   email: string;
+  phone?: string;
   profileImage: string;
 }
 
@@ -17,6 +18,7 @@ const OfficerProfile: FC<OfficerProfileProps> = ({
   collarNumber,
   unit,
   email,
+  phone,
   profileImage,
 }) => {
   return (
@@ -58,9 +60,11 @@ const OfficerProfile: FC<OfficerProfileProps> = ({
         <p className="mt-1 italic">{unit}</p>
 
         <div className="mt-4 flex justify-center space-x-6">
-          <a href={`tel:${badgeNumber}`} className="text-gray-600 dark:text-gray-300 hover:text-blue-600">
-            <PhoneIcon className="w-6 h-6" />
-          </a>
+          {phone && (
+            <a href={`tel:${phone}`} className="text-gray-600 dark:text-gray-300 hover:text-blue-600">
+              <PhoneIcon className="w-6 h-6" />
+            </a>
+          )}
           <a href={`mailto:${email}`} className="text-gray-600 dark:text-gray-300 hover:text-blue-600">
             <EnvelopeIcon className="w-6 h-6" />
           </a>

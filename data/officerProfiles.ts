@@ -8,6 +8,7 @@ export const officerProfiles: (OfficerProfileProps & { id: string })[] = [
     collarNumber: 'T123',
     unit: 'Road Policing Unit',
     email: 'folk_dragnet.2a@icloud.com',
+    phone: '101',
     profileImage: '/images/trafficofficercontact.png',
   },
   {
@@ -17,6 +18,7 @@ export const officerProfiles: (OfficerProfileProps & { id: string })[] = [
     collarNumber: 'T345',
     unit: 'Road Policing Unit',
     email: 'jane.doe@scotland.police.uk',
+    phone: '2345432',
     profileImage: '/images/trafficofficercontact.png',
   },
 ];
