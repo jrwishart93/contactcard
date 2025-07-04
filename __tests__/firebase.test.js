@@ -52,3 +52,19 @@ describe('firebase config validation', () => {
     expect(() => validateConfig()).not.toThrow();
   });
 });
+
+describe('firestore log level', () => {
+  it('enables debug logging when not in production', () => {
+    process.env.NODE_ENV = 'development';
+    require('../firebase/client');
+    const { setLogLevel } = require('firebase/firestore');
+    expect(setLogLevel).toHaveBeenCalledWith('debug');
+  });
+
+  it('does not enable debug logging in production', () => {
+    process.env.NODE_ENV = 'production';
+    require('../firebase/client');
+    const { setLogLevel } = require('firebase/firestore');
+    expect(setLogLevel).not.toHaveBeenCalled();
+  });
+});
