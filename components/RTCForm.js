@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { serverTimestamp, doc, setDoc } from 'firebase/firestore';
+import { serverTimestamp, doc, setDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/firebase/client';
 
 const LocationPicker = dynamic(() => import('./LocationPicker'), { ssr: false });
@@ -76,7 +76,9 @@ export default function RTCForm() {
         {
           ...formData,
           created: serverTimestamp(),
-          expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+          expiresAt: Timestamp.fromMillis(
+            Date.now() + 30 * 24 * 60 * 60 * 1000
+          ),
         },
         { merge: true }
       );

@@ -8,12 +8,22 @@ if (!admin.apps.length) {
 exports.cleanupExpiredReports = functions.pubsub.schedule('every 24 hours').onRun(async (context) => {
   const db = admin.firestore();
   const now = Date.now();
-  const snapshot = await db.collection('rtc').where('expiresAt', '<', now).get();
+  const snapshot = await db.collection('rtc').get();
 
   const batch = db.batch();
   const deletedIds = [];
 
   for (const doc of snapshot.docs) {
+    const data = doc.data();
+    const expiresAt = data.expiresAt;
+    const expiresMillis =
+      expiresAt && typeof expiresAt.toMillis === 'function'
+        ? expiresAt.toMillis()
+        : expiresAt;
+    if (!expiresMillis || expiresMillis > now) {
+      continue;
+    }
+
     const subSnap = await doc.ref.collection('submissions').get();
     subSnap.forEach(subDoc => batch.delete(subDoc.ref));
     batch.delete(doc.ref);

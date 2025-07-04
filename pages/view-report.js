@@ -61,7 +61,11 @@ export default function ViewReport() {
       }
       const docSnap = snap.docs[0];
       const data = docSnap.data();
-      if (data.expiresAt && data.expiresAt.toDate() <= new Date()) {
+      const expiresMillis =
+        data.expiresAt && typeof data.expiresAt.toMillis === 'function'
+          ? data.expiresAt.toMillis()
+          : data.expiresAt;
+      if (expiresMillis && expiresMillis <= Date.now()) {
         setError('No report found for that Storm Ref, date, and email combination.');
         setLoading(false);
         return;
