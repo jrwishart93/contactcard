@@ -83,33 +83,38 @@ export default function RTCForm() {
         { merge: true }
       );
 
-      // fire-and-forget email
-      fetch('/api/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          incidentNumber: incidentId,
-          userId: incidentId,
-          fullName: formData.driverName,
-          email: formData.email,
-          phone: formData.contactNumber,
-          constable: formData.officer,
-          location: formData.location,
-          locationNotes: formData.locationNotes,
-          incidentDate: formData.incidentDate,
-          policeRef: formData.policeRef,
-          vehicle: {
-            makeModel: formData.makeModel,
-            reg: formData.vehicleReg,
-          },
-          insurance: {
-            company: formData.insuranceCompany,
-            policyNumber: formData.policyNo,
-          },
-        }),
-      }).catch((err) => {
+      try {
+        const emailRes = await fetch('/api/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            incidentNumber: incidentId,
+            userId: incidentId,
+            fullName: formData.driverName,
+            email: formData.email,
+            phone: formData.contactNumber,
+            constable: formData.officer,
+            location: formData.location,
+            locationNotes: formData.locationNotes,
+            incidentDate: formData.incidentDate,
+            policeRef: formData.policeRef,
+            vehicle: {
+              makeModel: formData.makeModel,
+              reg: formData.vehicleReg,
+            },
+            insurance: {
+              company: formData.insuranceCompany,
+              policyNumber: formData.policyNo,
+            },
+          }),
+        });
+        if (!emailRes.ok) {
+          throw new Error('Email request failed');
+        }
+      } catch (err) {
         console.error('Failed to send confirmation email', err);
-      });
+        alert('Failed to send confirmation email');
+      }
 
       router.push(`/rtc/${incidentId}`);
     } catch (error) {
