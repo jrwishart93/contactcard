@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { PhoneIcon, EnvelopeIcon, MapPinIcon, IdentificationIcon } from '@heroicons/react/24/outline';
 import type { FC } from 'react';
+import { generateVCard } from '@/utils/vcard';
 
 export interface OfficerProfileProps {
   name: string;
@@ -68,10 +69,19 @@ const OfficerProfile: FC<OfficerProfileProps> = ({
           <a href={`mailto:${email}`} className="text-gray-600 dark:text-gray-300 hover:text-blue-600">
             <EnvelopeIcon className="w-6 h-6" />
           </a>
-          <a href="#location" className="text-gray-600 dark:text-gray-300 hover:text-blue-600">
+          <a
+            href="https://maps.app.goo.gl/QjDwBoPHeP6so7Ko8?g_st=ipc"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gray-600 dark:text-gray-300 hover:text-blue-600"
+          >
             <MapPinIcon className="w-6 h-6" />
           </a>
-          <a href="#badge" className="text-gray-600 dark:text-gray-300 hover:text-blue-600">
+          <a
+            href={`data:text/vcard;charset=utf-8,${encodeURIComponent(generateVCard({ name, email, phone, unit }))}`}
+            download={`${name.replace(/\s+/g, '_')}.vcf`}
+            className="text-gray-600 dark:text-gray-300 hover:text-blue-600"
+          >
             <IdentificationIcon className="w-6 h-6" />
           </a>
         </div>
