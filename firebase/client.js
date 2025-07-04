@@ -16,8 +16,10 @@ const firebaseConfig = {
 // Initialize firebase only once, even if hot-reloaded
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-// Enable verbose Firestore logs for easier debugging
-setLogLevel('debug');
+// Enable verbose Firestore logs for easier debugging in non-production envs
+if (process.env.NODE_ENV !== 'production') {
+  setLogLevel('debug');
+}
 
 // Initialise analytics only in the browser
 if (typeof window !== 'undefined') {
