@@ -17,6 +17,8 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "Missing Mapbox token" });
   }
 
+  console.log("mapbox lookup", { postcode, house });
+
   // build two queries: one with house, one without
   const baseUrl = (q) =>
     `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(q)}.json` +
@@ -27,9 +29,12 @@ export default async function handler(req, res) {
   for (let q of [combined, postcode]) {
     try {
       const url = baseUrl(q);
+      console.log("→ fetching", url);
       const resp = await fetch(url);
+      console.log("→ status", resp.status);
       if (!resp.ok) continue;
       const { features } = await resp.json();
+      console.log("→ features", features.length);
       if (features.length) {
         const addresses = features.map((f) => f.place_name);
         return res.status(200).json({ addresses });
