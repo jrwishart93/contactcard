@@ -8,15 +8,16 @@ import QRCodeOverlay from '@/components/QRCodeOverlay';
 import dynamic from 'next/dynamic';
 
 // Pull off the default export so dynamic() gets a valid React component
-const QRCode = dynamic(
-  () => import('qrcode.react').then(mod => mod.default),
+const QRCode: any = dynamic(
+  () => import('qrcode.react').then(mod => mod.default as any),
   { ssr: false }
 );
 
 export default function RTCView() {
   const router = useRouter();
   const { id } = router.query;
-  const docRef = id ? doc(db, 'rtc', id) : null;
+  const docId = Array.isArray(id) ? id[0] : id;
+  const docRef = docId ? doc(db, 'rtc', docId) : null;
   const [value, loading, error] = useDocumentData(docRef);
 
   const resendEmail = async () => {

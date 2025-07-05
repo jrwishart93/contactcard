@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState } from 'react';
 import { collection, doc, updateDoc } from 'firebase/firestore';
 import { useCollection, useCollectionData } from 'react-firebase-hooks/firestore';

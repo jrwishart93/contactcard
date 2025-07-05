@@ -1,9 +1,16 @@
 import OpenAI from 'openai';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+): Promise<void> {
+  if (req.method !== 'POST') {
+    res.status(405).end();
+    return;
+  }
 
   try {
     const body = req.body || {};

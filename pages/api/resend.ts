@@ -1,6 +1,13 @@
-// pages/api/resend.js
-export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
+import type { NextApiRequest, NextApiResponse } from 'next';
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+): Promise<void> {
+  if (req.method !== 'POST') {
+    res.status(405).end();
+    return;
+  }
   const { id } = req.query;
   try {
     await fetch(process.env.BASE_URL + '/sendEmail', {

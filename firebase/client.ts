@@ -1,7 +1,6 @@
-// firebase/client.js
 import { initializeApp, getApp, getApps } from 'firebase/app';
 import { getAnalytics } from 'firebase/analytics';
-import { getFirestore, setLogLevel } from 'firebase/firestore';
+import { getFirestore, setLogLevel, type Firestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -26,4 +25,4 @@ if (typeof window !== 'undefined') {
   getAnalytics(app);
 }
 
-export const db = getFirestore(app);
+export const db: Firestore = getFirestore(app);

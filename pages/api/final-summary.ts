@@ -1,6 +1,7 @@
 import { Resend } from 'resend';
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import validateConfig from '../../firebase/validateConfig';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -16,25 +17,32 @@ const firebaseConfig = {
 };
 
 
-export default async function handler(req, res) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+): Promise<void> {
   validateConfig();
   if (!getApps().length) initializeApp(firebaseConfig);
   const db = getFirestore();
-  if (req.method !== 'POST') return res.status(405).end();
+  if (req.method !== 'POST') {
+    res.status(405).end();
+    return;
+  }
 
   const { id } = req.query; // incident number
+  const docId = Array.isArray(id) ? id[0] : id;
   const { officerEmail } = req.body || {};
 
   try {
-    const snap = await getDocs(collection(db, 'rtc', id, 'submissions'));
-    const submissions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const snap = await getDocs(collection(db, 'rtc', docId, 'submissions'));
+    const submissions = snap.docs.map(d => ({ id: d.id, ...d.data() })) as any[];
 
     if (!submissions.length) return res.status(404).json({ error: 'No submissions' });
 
     const emails = submissions.map(s => s.email);
     if (officerEmail) emails.push(officerEmail);
 
-    const html = generateSummaryTemplate(id, submissions);
+    const html = generateSummaryTemplate(docId, submissions);
 
     await resend.emails.send({
       from: 'Police Scotland <noreply@resend.dev>',
@@ -50,7 +58,7 @@ export default async function handler(req, res) {
   }
 }
 
-function generateSummaryTemplate(incidentNumber, submissions) {
+function generateSummaryTemplate(incidentNumber: string, submissions: any[]): string {
   const parties = submissions
     .map((s, idx) => {
       const vehicle = s.vehicle || {};

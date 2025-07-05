@@ -1,11 +1,14 @@
-const functions = require('firebase-functions');
-const admin = require('firebase-admin');
+// @ts-nocheck
+import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin';
 
 if (!admin.apps.length) {
   admin.initializeApp();
 }
 
-exports.cleanupExpiredReports = functions.pubsub.schedule('every 24 hours').onRun(async (context) => {
+export const cleanupExpiredReports = functions
+  .pubsub.schedule('every 24 hours')
+  .onRun(async (context): Promise<null> => {
   const db = admin.firestore();
   const now = Date.now();
   const snapshot = await db.collection('rtc').get();
@@ -42,5 +45,5 @@ exports.cleanupExpiredReports = functions.pubsub.schedule('every 24 hours').onRu
     timestamp: admin.firestore.FieldValue.serverTimestamp(),
   });
 
-  return null;
-});
+    return null;
+  });
