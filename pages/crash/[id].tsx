@@ -1,4 +1,4 @@
-// pages/rtc/[id].js
+// pages/crash/[id].js
 import { useRouter } from 'next/router';
 import { useDocumentData } from 'react-firebase-hooks/firestore';
 import { doc } from 'firebase/firestore';
@@ -13,7 +13,7 @@ const QRCode: any = dynamic(
   { ssr: false }
 );
 
-export default function RTCView() {
+export default function CrashView() {
   const router = useRouter();
   const { id } = router.query;
   const docId = Array.isArray(id) ? id[0] : id;

@@ -41,7 +41,7 @@ export default function Home() {
             <div className="mt-8 flex flex-col items-center space-y-3">
               {/* Start Report */}
               <Link
-                href="/rtc/new"
+                href="/crash/new"
                 className="px-6 py-3 bg-[#003b77] text-white rounded shadow hover:opacity-90 transition"
               >
                 Start Report →
