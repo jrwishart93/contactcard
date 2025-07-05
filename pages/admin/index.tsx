@@ -1,22 +1,29 @@
-// @ts-nocheck
-import { useState } from 'react';
-import { collection, doc, updateDoc } from 'firebase/firestore';
+import { FormEvent, ChangeEvent, useState } from 'react';
+import { collection, doc, updateDoc, type DocumentData } from 'firebase/firestore';
 import { useCollection, useCollectionData } from 'react-firebase-hooks/firestore';
 import { db } from '@/firebase/client';
 import Header from '@/components/Header';
 import AuthCheck from '@/components/AuthCheck';
 
-function IncidentRow({ id }) {
+interface Submission extends DocumentData {
+  id: string;
+  fullName?: string;
+  email?: string;
+  constable?: string;
+  location?: string;
+}
+
+function IncidentRow({ id }: { id: string }) {
   const submissionsRef = collection(db, 'rtc', id, 'submissions');
-  const [submissions] = useCollectionData(submissionsRef, { idField: 'id' });
+  const [submissions] = useCollectionData<DocumentData>(submissionsRef);
   const [expanded, setExpanded] = useState(false);
 
-  const saveSubmission = async (sub) => {
+  const saveSubmission = async (sub: Submission): Promise<void> => {
     const { id: subId, ...data } = sub;
     await updateDoc(doc(db, 'rtc', id, 'submissions', subId), data);
   };
 
-  const sendSummary = async () => {
+  const sendSummary = async (): Promise<void> => {
     await fetch(`/api/final-summary?id=${id}`, { method: 'POST' });
   };
 
@@ -37,7 +44,7 @@ function IncidentRow({ id }) {
       {expanded && submissions && (
         <div className="mt-4 space-y-4">
           {submissions.map(sub => (
-            <SubmissionForm key={sub.id} incidentId={id} submission={sub} onSave={saveSubmission} />
+            <SubmissionForm key={sub.id} incidentId={id} submission={sub as Submission} onSave={saveSubmission} />
           ))}
         </div>
       )}
@@ -45,15 +52,21 @@ function IncidentRow({ id }) {
   );
 }
 
-function SubmissionForm({ incidentId, submission, onSave }) {
-  const [form, setForm] = useState(submission);
+interface FormProps {
+  incidentId: string;
+  submission: Submission;
+  onSave: (sub: Submission) => Promise<void>;
+}
 
-  const handleChange = (e) => {
+function SubmissionForm({ incidentId, submission, onSave }: FormProps) {
+  const [form, setForm] = useState<Submission>(submission);
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     await onSave(form);
   };

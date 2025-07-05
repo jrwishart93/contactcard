@@ -1,10 +1,26 @@
-// @ts-nocheck
 import { useRouter } from 'next/router';
 import { useDocumentData, useCollectionData } from 'react-firebase-hooks/firestore';
-import { doc, collection } from 'firebase/firestore';
+import { doc, collection, type DocumentData } from 'firebase/firestore';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { db } from '@/firebase/client';
+
+interface Submission extends DocumentData {
+  id?: string;
+  fullName?: string;
+  address?: string;
+  vehicle?: {
+    make?: string;
+    model?: string;
+    colour?: string;
+    reg?: string;
+  };
+  insurance?: {
+    company?: string;
+    policyNumber?: string;
+  };
+  notes?: string;
+}
 
 export default function MergedReport() {
   const router = useRouter();
@@ -14,8 +30,8 @@ export default function MergedReport() {
   const docRef = docId ? doc(db, 'rtc', docId) : null;
   const submissionsRef = docId ? collection(db, 'rtc', docId, 'submissions') : null;
 
-  const [incident, incidentLoading] = useDocumentData(docRef);
-  const [submissions, subsLoading] = useCollectionData(submissionsRef, { idField: 'id' });
+  const [incident, incidentLoading] = useDocumentData<DocumentData>(docRef);
+  const [submissions, subsLoading] = useCollectionData<DocumentData>(submissionsRef);
 
   if (!id) return null;
   if (incidentLoading || subsLoading) return <p className="p-4">Loading…</p>;
@@ -44,7 +60,7 @@ export default function MergedReport() {
 
         {submissions && submissions.length > 0 ? (
           <div className="space-y-4">
-            {submissions.map((s, idx) => (
+            {(submissions as Submission[]).map((s, idx) => (
               <div key={s.id} className="border p-4 rounded">
                 <h2 className="font-semibold mb-2">Party {idx + 1}</h2>
                 <p><strong>Name:</strong> {s.fullName}</p>

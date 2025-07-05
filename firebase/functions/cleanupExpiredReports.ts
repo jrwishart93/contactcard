@@ -1,5 +1,4 @@
-// @ts-nocheck
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 import * as admin from 'firebase-admin';
 
 if (!admin.apps.length) {
@@ -8,21 +7,21 @@ if (!admin.apps.length) {
 
 export const cleanupExpiredReports = functions
   .pubsub.schedule('every 24 hours')
-  .onRun(async (context): Promise<null> => {
+  .onRun(async (_context): Promise<null> => {
   const db = admin.firestore();
   const now = Date.now();
   const snapshot = await db.collection('rtc').get();
 
   const batch = db.batch();
-  const deletedIds = [];
+  const deletedIds: string[] = [];
 
   for (const doc of snapshot.docs) {
     const data = doc.data();
     const expiresAt = data.expiresAt;
-    const expiresMillis =
-      expiresAt && typeof expiresAt.toMillis === 'function'
-        ? expiresAt.toMillis()
-        : expiresAt;
+    const expiresMillis: number | undefined =
+      expiresAt && typeof (expiresAt as any).toMillis === 'function'
+        ? (expiresAt as any).toMillis()
+        : (expiresAt as number | undefined);
     if (!expiresMillis || expiresMillis > now) {
       continue;
     }
@@ -45,5 +44,5 @@ export const cleanupExpiredReports = functions
     timestamp: admin.firestore.FieldValue.serverTimestamp(),
   });
 
-    return null;
+  return null;
   });
