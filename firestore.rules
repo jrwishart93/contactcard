@@ -2,11 +2,13 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{db}/documents {
     match /rtc/{id} {
-      // Public read/write access so users can submit and view RTC reports
-      allow read, write: if true;
+      // Anyone signed in (including anonymous) may read or write
+      // collision reports and related party submissions.
+      // Anonymous auth is used for public forms so unauthenticated
+      // visitors must still sign in anonymously before access.
+      allow read, write: if request.auth != null;
       match /submissions/{subId} {
-        // Individual party submissions remain publicly writable
-        allow read, write: if true;
+        allow read, write: if request.auth != null;
       }
     }
 
