@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useRouter } from 'next/router';
 import { useDocumentData, useCollectionData } from 'react-firebase-hooks/firestore';
 import { doc, collection } from 'firebase/firestore';
@@ -15,7 +14,7 @@ export default function MergedReport() {
   const submissionsRef = docId ? collection(db, 'rtc', docId, 'submissions') : null;
 
   const [incident, incidentLoading] = useDocumentData(docRef);
-  const [submissions, subsLoading] = useCollectionData(submissionsRef, { idField: 'id' });
+  const [submissions, subsLoading] = useCollectionData(submissionsRef, { idField: 'id' } as any);
 
   if (!id) return null;
   if (incidentLoading || subsLoading) return <p className="p-4">Loading…</p>;

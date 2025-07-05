@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState } from 'react';
 import { collection, doc, updateDoc } from 'firebase/firestore';
 import { useCollection, useCollectionData } from 'react-firebase-hooks/firestore';
@@ -8,7 +7,7 @@ import AuthCheck from '@/components/AuthCheck';
 
 function IncidentRow({ id }) {
   const submissionsRef = collection(db, 'rtc', id, 'submissions');
-  const [submissions] = useCollectionData(submissionsRef, { idField: 'id' });
+  const [submissions] = useCollectionData(submissionsRef, { idField: 'id' } as any);
   const [expanded, setExpanded] = useState(false);
 
   const saveSubmission = async (sub) => {

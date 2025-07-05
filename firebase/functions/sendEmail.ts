@@ -1,4 +1,3 @@
-// @ts-nocheck
 import * as functions from 'firebase-functions';
 import { Resend } from 'resend';
 

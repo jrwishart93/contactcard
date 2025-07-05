@@ -22,3 +22,5 @@ describe('/api/uk-addresses', () => {
     expect(res.body).toEqual({ addresses });
   });
 });
+
+export {};
