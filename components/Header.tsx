@@ -30,10 +30,10 @@ export default function Header() {
         <Link href="/" className="block hover:underline" onClick={() => setMenuOpen(false)}>
           Home
         </Link>
-        <Link href="/rtc/new" className="block hover:underline" onClick={() => setMenuOpen(false)}>
+        <Link href="/crash/new" className="block hover:underline" onClick={() => setMenuOpen(false)}>
           Start Report
         </Link>
-        <Link href="/statements/new" className="block hover:underline" onClick={() => setMenuOpen(false)}>
+        <Link href="/statement/new" className="block hover:underline" onClick={() => setMenuOpen(false)}>
           Statement
         </Link>
         <Link href="/officers" className="block hover:underline" onClick={() => setMenuOpen(false)}>
