@@ -1,69 +1,90 @@
-import { useEffect, useRef, useState } from 'react';
-import mbxGeocoding from '@mapbox/mapbox-sdk/services/geocoding';
+// components/LocationPicker.js
+import { useEffect, useRef, useState, useMemo } from 'react'
+import mbxGeocoding from '@mapbox/mapbox-sdk/services/geocoding'
 
-export default function LocationPicker({ value = {}, onChange }) {
-  const [search, setSearch] = useState(value.location || '');
-  const [suggestions, setSuggestions] = useState([]);
-  const [mapFailed, setMapFailed] = useState(false);
-  const mapRef = useRef(null);
-  const markerRef = useRef(null);
-  const mapContainerRef = useRef(null);
-  const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
-  const geocoder = mbxGeocoding({ accessToken: token || '' });
+export default function LocationPicker({
+  value: { location = '', lat = '', lng = '', locationNotes = '' } = {},
+  onChange,
+}) {
+  const [search, setSearch] = useState(location)
+  const [suggestions, setSuggestions] = useState([])
+  const [mapFailed, setMapFailed] = useState(false)
+  const mapRef = useRef(null)
+  const markerRef = useRef(null)
+  const mapContainerRef = useRef(null)
 
-  // Fetch suggestions as user types
+  const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
+
+  // create geocoder once
+  const geocoder = useMemo(
+    () => mbxGeocoding({ accessToken: token || '' }),
+    [token]
+  )
+
+  // 1) suggestions effect
   useEffect(() => {
     if (!token || search.length < 3) {
-      setSuggestions([]);
-      return;
+      setSuggestions([])
+      return
     }
-    let cancelled = false;
+    let cancelled = false
     geocoder
       .forwardGeocode({ query: search, limit: 5, autocomplete: true })
       .send()
       .then((res) => {
-        if (cancelled) return;
-        setSuggestions(res.body.features || []);
+        if (!cancelled) setSuggestions(res.body.features || [])
       })
-      .catch(() => setSuggestions([]));
-    return () => { cancelled = true; };
-  }, [search, geocoder, token]);
+      .catch(() => {
+        if (!cancelled) setSuggestions([])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [search, token, geocoder])
 
-  // Initialize map when coordinates selected
+  // 2) initialize map once when we first get coords
   useEffect(() => {
-    if (!token || mapRef.current || !value.lat || !value.lng || !mapContainerRef.current) return;
+    if (!token || mapRef.current || !lat || !lng || !mapContainerRef.current)
+      return
+
     import('mapbox-gl')
       .then((mbgl) => {
-        mbgl.default.accessToken = token;
+        mbgl.default.accessToken = token
         mapRef.current = new mbgl.default.Map({
           container: mapContainerRef.current,
           style: 'mapbox://styles/mapbox/streets-v12',
-          center: [value.lng, value.lat],
+          center: [lng, lat],
           zoom: 14,
-        });
+        })
         markerRef.current = new mbgl.default.Marker({ draggable: true })
-          .setLngLat([value.lng, value.lat])
-          .addTo(mapRef.current);
+          .setLngLat([lng, lat])
+          .addTo(mapRef.current)
+
         markerRef.current.on('dragend', () => {
-          const { lat, lng } = markerRef.current.getLngLat();
-          onChange({ ...value, lat: lat.toFixed(6), lng: lng.toFixed(6) });
-        });
+          const { lat: newLat, lng: newLng } = markerRef.current.getLngLat()
+          onChange({
+            location,
+            lat: newLat.toFixed(6),
+            lng: newLng.toFixed(6),
+            locationNotes,
+          })
+        })
       })
       .catch((err) => {
-        console.error(err);
-        setMapFailed(true);
-      });
-  }, [token, value.lat, value.lng, onChange, value]);
+        console.error(err)
+        setMapFailed(true)
+      })
+  }, [token, lat, lng, onChange, locationNotes, location])
 
-  // Update marker when coordinates change
+  // 3) keep marker & center in sync when coords change
   useEffect(() => {
     if (mapRef.current && markerRef.current) {
-      mapRef.current.setCenter([value.lng, value.lat]);
-      markerRef.current.setLngLat([value.lng, value.lat]);
+      mapRef.current.setCenter([lng, lat])
+      markerRef.current.setLngLat([lng, lat])
     }
-  }, [value.lat, value.lng]);
+  }, [lat, lng])
 
-  // Fallback if no token or map failed
+  // fallback UI if no token or map failed
   if (!token || mapFailed) {
     return (
       <div className="space-y-4">
@@ -71,25 +92,30 @@ export default function LocationPicker({ value = {}, onChange }) {
         <input
           type="text"
           name="location"
-          value={value.location || ''}
-          onChange={(e) => onChange({ ...value, location: e.target.value })}
+          value={location}
+          onChange={(e) =>
+            onChange({ location: e.target.value, lat, lng, locationNotes })
+          }
           placeholder="Enter street or area"
-          className="mt-1 block w-full p-3 border rounded text-base"
+          className="mt-1 block w-full p-3 border rounded"
         />
         <label className="block font-medium">Location Notes:</label>
         <textarea
           name="locationNotes"
-          value={value.locationNotes || ''}
-          onChange={(e) => onChange({ ...value, locationNotes: e.target.value })}
-          placeholder="Additional information about the location"
-          className="mt-1 block w-full p-3 border rounded text-base"
+          value={locationNotes}
+          onChange={(e) =>
+            onChange({ location, lat, lng, locationNotes: e.target.value })
+          }
+          placeholder="Additional info"
+          className="mt-1 block w-full p-3 border rounded"
         />
-        <input type="hidden" name="lat" value={value.lat || ''} />
-        <input type="hidden" name="lng" value={value.lng || ''} />
+        <input type="hidden" name="lat" value={lat} />
+        <input type="hidden" name="lng" value={lng} />
       </div>
-    );
+    )
   }
 
+  // normal UI with map & suggestions
   return (
     <div className="space-y-4">
       <div>
@@ -99,7 +125,7 @@ export default function LocationPicker({ value = {}, onChange }) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search for a place"
-          className="mt-1 block w-full p-3 border rounded text-base"
+          className="mt-1 block w-full p-3 border rounded"
         />
         {suggestions.length > 0 && (
           <ul className="border rounded bg-white max-h-40 overflow-auto mt-1">
@@ -108,14 +134,14 @@ export default function LocationPicker({ value = {}, onChange }) {
                 <button
                   type="button"
                   onClick={() => {
-                    setSearch(feat.place_name);
-                    setSuggestions([]);
+                    setSearch(feat.place_name)
+                    setSuggestions([])
                     onChange({
-                      ...value,
                       location: feat.place_name,
                       lat: feat.center[1].toFixed(6),
                       lng: feat.center[0].toFixed(6),
-                    });
+                      locationNotes,
+                    })
                   }}
                   className="block w-full text-left px-2 py-1 hover:bg-gray-200"
                 >
@@ -126,19 +152,26 @@ export default function LocationPicker({ value = {}, onChange }) {
           </ul>
         )}
       </div>
-      {value.lat && value.lng && (
-        <div ref={mapContainerRef} className="w-full h-64 border rounded" />
+
+      {lat && lng && (
+        <div
+          ref={mapContainerRef}
+          className="w-full h-64 border rounded"
+        />
       )}
+
       <label className="block font-medium">Location Notes:</label>
       <textarea
         name="locationNotes"
-        value={value.locationNotes || ''}
-        onChange={(e) => onChange({ ...value, locationNotes: e.target.value })}
-        placeholder="Additional location notes"
-        className="mt-1 block w-full p-3 border rounded text-base"
+        value={locationNotes}
+        onChange={(e) =>
+          onChange({ location, lat, lng, locationNotes: e.target.value })
+        }
+        placeholder="Additional info"
+        className="mt-1 block w-full p-3 border rounded"
       />
-      <input type="hidden" name="lat" value={value.lat || ''} />
-      <input type="hidden" name="lng" value={value.lng || ''} />
+      <input type="hidden" name="lat" value={lat} />
+      <input type="hidden" name="lng" value={lng} />
     </div>
-  );
+  )
 }

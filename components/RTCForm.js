@@ -1,3 +1,4 @@
+// components/RTCForm.js
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -47,24 +48,35 @@ export default function RTCForm() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const lookupAddresses = async () => {
-    if (!formData.postcode) return;
-    setAddressLoading(true);
-    setAddresses([]);
-    try {
-      const res = await fetch(
-        `/api/address-lookup?postcode=${encodeURIComponent(formData.postcode)}&house=${encodeURIComponent(formData.houseNumber)}`
+   // ← NEW: use Nominatim instead of Mapbox
+   const lookupAddresses = async () => {
+     const pc = formData.postcode.trim();
+     if (!pc) { alert("Please enter a postcode"); return; }
+     setAddressLoading(true);
+     setAddresses([]);
+     try {
+       const res = await fetch(
+        `/api/nominatim-address-lookup?postcode=${encodeURIComponent(pc)}&house=${encodeURIComponent(houseNum)}`
       );
-      if (!res.ok) throw new Error('Address lookup failed');
-      const data = await res.json();
-      setAddresses(data.addresses || []);
-    } catch (err) {
-      console.error(err);
-      alert('Address lookup failed');
-    } finally {
-      setAddressLoading(false);
-    }
-  };
+       if (!res.ok) {
+         const txt = await res.text();
+         console.error("Lookup failed:", txt);
+         alert(`Lookup failed: ${res.status}`);
+         return;
+       }
+       const { addresses = [] } = await res.json();
+       if (addresses.length === 0) {
+         alert("No addresses found – check postcode/house");
+       } else {
+         setAddresses(addresses);
+       }
+     } catch (e) {
+       console.error("Lookup error", e);
+       alert("Address lookup failed (see console)");
+     } finally {
+       setAddressLoading(false);
+     }
+   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -76,49 +88,33 @@ export default function RTCForm() {
         {
           ...formData,
           created: serverTimestamp(),
-          expiresAt: Timestamp.fromMillis(
-            Date.now() + 30 * 24 * 60 * 60 * 1000
-          ),
+          expiresAt: Timestamp.fromMillis(Date.now() + 30 * 24 * 60 * 60 * 1000),
         },
         { merge: true }
       );
-
-      try {
-        const emailRes = await fetch('/api/submit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            incidentNumber: incidentId,
-            userId: incidentId,
-            fullName: formData.driverName,
-            email: formData.email,
-            phone: formData.contactNumber,
-            constable: formData.officer,
-            location: formData.location,
-            locationNotes: formData.locationNotes,
-            incidentDate: formData.incidentDate,
-            policeRef: formData.policeRef,
-            vehicle: {
-              makeModel: formData.makeModel,
-              reg: formData.vehicleReg,
-            },
-            insurance: {
-              company: formData.insuranceCompany,
-              policyNumber: formData.policyNo,
-            },
-          }),
-        });
-        if (!emailRes.ok) {
-          throw new Error('Email request failed');
-        }
-      } catch (err) {
-        console.error('Failed to send confirmation email', err);
-        alert('Failed to send confirmation email');
-      }
-
+      // Send confirmation email
+      const emailRes = await fetch('/api/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          incidentNumber: incidentId,
+          userId: incidentId,
+          fullName: formData.driverName,
+          email: formData.email,
+          phone: formData.contactNumber,
+          constable: formData.officer,
+          location: formData.location,
+          locationNotes: formData.locationNotes,
+          incidentDate: formData.incidentDate,
+          policeRef: formData.policeRef,
+          vehicle: { makeModel: formData.makeModel, reg: formData.vehicleReg },
+          insurance: { company: formData.insuranceCompany, policyNumber: formData.policyNo },
+        }),
+      });
+      if (!emailRes.ok) throw new Error('Email request failed');
       router.push(`/rtc/${incidentId}`);
     } catch (error) {
-      console.error('Error adding document:', error);
+      console.error('Error:', error);
       alert('Failed to create report');
     } finally {
       setSubmitting(false);
@@ -171,17 +167,17 @@ export default function RTCForm() {
       <div>
         <label className="block font-medium">Injuries:</label>
         <div className="flex items-center space-x-4 mt-1">
-          {['Yes', 'No'].map(option => (
-            <label key={option}>
+          {['Yes', 'No'].map(opt => (
+            <label key={opt}>
               <input
                 type="radio"
                 name="injuries"
-                value={option}
-                checked={formData.injuries === option}
+                value={opt}
+                checked={formData.injuries === opt}
                 onChange={handleChange}
                 className="mr-1"
               />
-              {option}
+              {opt}
             </label>
           ))}
         </div>
@@ -222,7 +218,6 @@ export default function RTCForm() {
           />
         </div>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block font-medium">Insurance Company:</label>
@@ -248,7 +243,7 @@ export default function RTCForm() {
         </div>
       </div>
 
-      {/* Driver & Owner Details */}
+      {/* Driver & Owner */}
       <h2 className="text-lg font-semibold">Driver Details</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -265,23 +260,23 @@ export default function RTCForm() {
         <div>
           <label className="block font-medium">Is Driver the Owner?</label>
           <div className="mt-1 flex items-center space-x-4">
-            {['Yes', 'No'].map(option => (
-              <label key={option}>
+            {['Yes','No'].map(opt => (
+              <label key={opt}>
                 <input
                   type="radio"
                   name="isDriverOwner"
-                  value={option}
-                  checked={formData.isDriverOwner === option}
+                  value={opt}
+                  checked={formData.isDriverOwner===opt}
                   onChange={handleChange}
                   className="mr-1"
                 />
-                {option}
+                {opt}
               </label>
             ))}
           </div>
         </div>
       </div>
-      {formData.isDriverOwner === 'No' && (
+      {formData.isDriverOwner==='No' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block font-medium">Name of Owner:</label>
@@ -320,46 +315,26 @@ export default function RTCForm() {
       {/* Address Lookup */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
         <div>
-          <label className="block font-medium">Postcode:</label>
-          <input
-            type="text"
-            name="postcode"
-            value={formData.postcode}
-            onChange={handleChange}
-            className="mt-1 block w-full p-3 border rounded"
-          />
+          <label className="block font-medium" htmlFor="postcode">Postcode:</label>
+          <input id="postcode" name="postcode" type="text" value={formData.postcode} onChange={handleChange} className="mt-1 block w-full p-3 border rounded" />
         </div>
         <div>
-          <label className="block font-medium">House No.:</label>
-          <input
-            type="text"
-            name="houseNumber"
-            value={formData.houseNumber}
-            onChange={handleChange}
-            className="mt-1 block w-full p-3 border rounded"
-          />
+          <label className="block font-medium" htmlFor="houseNumber">House No.:</label>
+          <input id="houseNumber" name="houseNumber" type="text" value={formData.houseNumber} onChange={handleChange} className="mt-1 block w-full p-3 border rounded" />
         </div>
       </div>
       <div className="flex items-center space-x-2 mb-4">
-        <button
-          type="button"
-          onClick={lookupAddresses}
-          className="px-4 py-2 bg-gray-200 rounded"
-        >
-          {addressLoading ? 'Searching...' : 'Find Address'}
-        </button>
-        {addresses.length > 0 && (
-          <select
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            className="p-3 border rounded"
-          >
-            <option value="">Select address</option>
-            {addresses.map(addr => (
-              <option key={addr} value={addr}>{addr}</option>
-            ))}
+        <button type="button" onClick={lookupAddresses} className="px-4 py-2 bg-gray-200 rounded">{addressLoading? 'Searching…':'Find Address'}</button>
+      </div>
+      <div className="mb-4">
+        <label className="block font-medium" htmlFor="address">Address</label>
+        {addresses.length>0? (
+          <select id="address" name="address" value={formData.address} onChange={handleChange} className="mt-1 block w-full p-3 border rounded" required>
+            <option value="">Select full address…</option>
+            {addresses.map(addr=><option key={addr} value={addr}>{addr}</option>)}
           </select>
+        ):(
+          <input id="address" name="address" type="text" value={formData.address} disabled placeholder="Full address will appear here" className="mt-1 block w-full p-3 border rounded bg-gray-100 text-gray-500" />
         )}
       </div>
 
@@ -367,47 +342,19 @@ export default function RTCForm() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block font-medium">Email:</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            className="mt-1 block w-full p-3 border rounded"
-          />
+          <input type="email" name="email" value={formData.email} onChange={handleChange} required className="mt-1 block w-full p-3 border rounded" />
         </div>
         <div>
           <label className="block font-medium">Contact No.:</label>
-          <input
-            type="tel"
-            name="contactNumber"
-            value={formData.contactNumber}
-            onChange={handleChange}
-            className="mt-1 block w-full p-3 border rounded"
-          />
+          <input type="tel" name="contactNumber" value={formData.contactNumber} onChange={handleChange} className="mt-1 block w-full p-3 border rounded" />
         </div>
       </div>
-
       <h2 className="text-lg font-semibold">Officer Dealing</h2>
-      <select
-        name="officer"
-        value={formData.officer}
-        onChange={handleChange}
-        className="mt-1 block w-full p-3 border rounded"
-      >
+      <select name="officer" value={formData.officer} onChange={handleChange} className="mt-1 block w-full p-3 border rounded">
         <option value="">Select officer (if known)</option>
-        {officers.map(o => (
-          <option key={o.value} value={o.value}>{o.label}</option>
-        ))}
+        {officers.map(o=><option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
-
-      <button
-        type="submit"
-        disabled={submitting}
-        className="px-6 py-3 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition"
-      >
-        {submitting ? 'Saving...' : 'Submit Report'}
-      </button>
+      <button type="submit" disabled={submitting} className="px-6 py-3 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition">{submitting? 'Saving...' : 'Submit Report'}</button>
     </form>
   );
 }
