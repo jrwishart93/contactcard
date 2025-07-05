@@ -10,6 +10,14 @@ service cloud.firestore {
       }
     }
 
+    match /statements/{id} {
+      // Statements may contain personal information. Allow public read access
+      // but restrict writes so only authenticated users can create or modify
+      // records.
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
     // Admin-only data
     match /admin/{document=**} {
       allow read, write: if request.auth != null;
