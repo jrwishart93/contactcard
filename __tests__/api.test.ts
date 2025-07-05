@@ -37,6 +37,7 @@ beforeEach(() => {
   process.env.NEXT_PUBLIC_FIREBASE_APP_ID = 'test';
   process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID = 'test';
   process.env.GETADDRESS_API_KEY = 'test';
+  process.env.NEXT_PUBLIC_MAPBOX_TOKEN = 'test';
   process.env.BASE_URL = 'http://localhost';
 });
 
@@ -119,7 +120,7 @@ describe('/api/report-lookup', () => {
 describe('/api/address-lookup', () => {
   let app;
   beforeEach(() => {
-    const handler = require('../pages/api/address-lookup.ts').default;
+    const handler = require('../pages/api/address-lookup.js').default;
     app = express();
     app.get('/api/address-lookup', (req, res) => handler(req, res));
   });
@@ -130,8 +131,14 @@ describe('/api/address-lookup', () => {
   });
 
   it('returns addresses from API', async () => {
-    global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ addresses: ['a', 'b'] }) });
-    const res = await request(app).get('/api/address-lookup').query({ postcode: 'AB1' });
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ features: [{ place_name: 'a' }, { place_name: 'b' }] }),
+    });
+    const res = await request(app)
+      .get('/api/address-lookup')
+      .query({ postcode: 'AB1' });
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ addresses: ['a', 'b'] });
   });
