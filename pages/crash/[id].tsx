@@ -1,24 +1,33 @@
 // pages/crash/[id].js
 import { useRouter } from 'next/router';
-import { useDocumentData } from 'react-firebase-hooks/firestore';
-import { doc } from 'firebase/firestore';
+import { useDocumentData, useCollectionData } from 'react-firebase-hooks/firestore';
+import { doc, collection } from 'firebase/firestore';
 import Header from '@/components/Header';
-import { db } from '@/firebase/client';
+import Footer from '@/components/Footer';
 import QRCodeOverlay from '@/components/QRCodeOverlay';
 import dynamic from 'next/dynamic';
+import { db } from '@/firebase/client';
 
-// Pull off the default export so dynamic() gets a valid React component
-const QRCode: any = dynamic(
-  () => import('qrcode.react').then(mod => mod.default as any),
-  { ssr: false }
-);
+const QRCode = dynamic(() => import('qrcode.react').then(mod => mod.default), { ssr: false });
 
-export default function CrashView() {
+export default function CrashReportPage() {
   const router = useRouter();
   const { id } = router.query;
   const docId = Array.isArray(id) ? id[0] : id;
+
   const docRef = docId ? doc(db, 'rtc', docId) : null;
-  const [value, loading, error] = useDocumentData(docRef);
+  const submissionsRef = docId ? collection(db, 'rtc', docId, 'submissions') : null;
+
+  const [incident, incidentLoading] = useDocumentData(docRef);
+  const [submissions, subsLoading] = useCollectionData(submissionsRef, { idField: 'id' });
+
+  if (!id) return null;
+  if (incidentLoading || subsLoading) return <p className="p-4">Loading…</p>;
+  if (!incident) return <p className="p-4">Report not found.</p>;
+
+  const created = incident.created?.toDate ? incident.created.toDate() : null;
+  const expiry = created ? new Date(created.getTime() + 30 * 24 * 60 * 60 * 1000) : null;
+  const mailto = incident.email ? `mailto:${incident.email}?subject=Crash%20Report%20${docId}` : null;
 
   const resendEmail = async () => {
     try {
@@ -29,127 +38,70 @@ export default function CrashView() {
     }
   };
 
-  if (loading) return <p className="p-4">Loading…</p>;
-  if (error) return <p className="p-4 text-red-500">Error loading report.</p>;
-  if (!value) return null;
-
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-black text-black dark:text-white">
       <Header />
-
-      <main className="p-4 space-y-6 max-w-3xl mx-auto">
-        <h1 className="text-2xl">RTC Report</h1>
-
-        <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded space-y-2">
-          <p>
-            <span className="font-medium">Date of Incident:</span>{' '}
-            {value.incidentDate
-              ? new Date(value.incidentDate).toLocaleDateString()
-              : 'N/A'}
-          </p>
-          <p>
-            <span className="font-medium">Ref:</span>{' '}
-            {value.policeRef || 'N/A'}
-          </p>
-          <p>
-            <span className="font-medium">Vehicle Registration No.:</span>{' '}
-            {value.vehicleReg}
-          </p>
-          <p>
-            <span className="font-medium">Make/Model:</span>{' '}
-            {value.makeModel}
-          </p>
-          <p>
-            <span className="font-medium">Driver:</span>{' '}
-            {value.driverName}
-          </p>
-          {value.address && (
-            <p>
-              <span className="font-medium">Address:</span>{' '}
-              {value.address}
-            </p>
+      <main className="flex-grow p-4 max-w-3xl mx-auto space-y-6">
+        <h1 className="text-2xl font-semibold">Crash Report</h1>
+        <div className="space-y-2 bg-gray-100 dark:bg-gray-800 p-4 rounded">
+          <p><strong>Report Ref:</strong> {id}</p>
+          {incident.incidentDate && (
+            <p><strong>Date of Incident:</strong> {new Date(incident.incidentDate).toLocaleDateString()}</p>
           )}
-          {value.ownerName && (
-            <p>
-              <span className="font-medium">Owner:</span>{' '}
-              {value.ownerName}
-            </p>
-          )}
-          {(value.ownerEmail || value.ownerContactNumber) && (
-            <div className="space-y-1">
-              <p className="font-medium">Owner Contact:</p>
-              {value.ownerEmail && <p>{value.ownerEmail}</p>}
-              {value.ownerContactNumber && <p>{value.ownerContactNumber}</p>}
+          {incident.policeRef && <p><strong>Police Ref:</strong> {incident.policeRef}</p>}
+          {incident.officer && <p><strong>Officer Dealing:</strong> {incident.officer}</p>}
+          {expiry && <p className="text-sm text-gray-500">Available until {expiry.toLocaleDateString()}</p>}
+          {incident.location && <p><strong>Location:</strong> {incident.location}</p>}
+          {incident.locationNotes && <p><strong>Location Notes:</strong> {incident.locationNotes}</p>}
+          {incident.lat && incident.lng && (
+            <div className="mt-2">
+              <iframe
+                title="Map"
+                width="100%"
+                height="300"
+                className="border rounded"
+                src={`https://www.openstreetmap.org/export/embed.html?bbox=${incident.lng - 0.005},${incident.lat - 0.005},${incident.lng + 0.005},${incident.lat + 0.005}&layer=mapnik&marker=${incident.lat},${incident.lng}`}
+              />
+              <p className="text-sm mt-1">
+                <a
+                  href={`https://www.openstreetmap.org/?mlat=${incident.lat}&mlon=${incident.lng}#map=18/${incident.lat}/${incident.lng}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline"
+                >
+                  View on OpenStreetMap
+                </a>
+              </p>
             </div>
-          )}
-          <p>
-            <span className="font-medium">Insurance Company:</span>{' '}
-            {value.insuranceCompany}
-          </p>
-          {value.policyNo && (
-            <p>
-              <span className="font-medium">Policy No.:</span>{' '}
-              {value.policyNo}
-            </p>
-          )}
-          <p>
-            <span className="font-medium">Injuries:</span>{' '}
-          {value.injuries}
-        </p>
-        {value.injuries === 'Yes' && (
-          <p className="italic">
-            <span className="font-medium">Details:</span>{' '}
-            {value.injuryDetails}
-          </p>
-        )}
-        {value.location && (
-          <p>
-            <span className="font-medium">Location:</span>{' '}
-            {value.location}
-          </p>
-        )}
-        {value.locationNotes && (
-          <p>
-            <span className="font-medium">Location Notes:</span>{' '}
-            {value.locationNotes}
-          </p>
-        )}
-        {value.lat && value.lng && (
-          <div className="mt-2">
-            <iframe
-              title="map"
-              width="100%"
-              height="300"
-              className="border rounded"
-              src={`https://www.openstreetmap.org/export/embed.html?bbox=${value.lng - 0.005},${value.lat - 0.005},${value.lng + 0.005},${value.lat + 0.005}&layer=mapnik&marker=${value.lat},${value.lng}`}
-            />
-            <p className="text-sm mt-1">
-              <a
-                href={`https://www.openstreetmap.org/?mlat=${value.lat}&mlon=${value.lng}#map=18/${value.lat}/${value.lng}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 underline"
-              >
-                View on OpenStreetMap
-              </a>
-            </p>
-          </div>
-        )}
-        {value.officer && (
-          <p>
-            <span className="font-medium">Officer Dealing:</span>{' '}
-            {value.officer}
-          </p>
           )}
         </div>
 
+        {submissions && submissions.length > 0 ? (
+          <div className="space-y-4">
+            {submissions.map((s, idx) => (
+              <div key={s.id} className="border p-4 rounded bg-white dark:bg-gray-900">
+                <h2 className="font-semibold mb-2">Party {idx + 1}</h2>
+                <p><strong>Name:</strong> {s.fullName}</p>
+                {s.address && <p><strong>Address:</strong> {s.address}</p>}
+                {s.vehicle && (
+                  <p><strong>Vehicle:</strong> {s.vehicle.make} {s.vehicle.model} ({s.vehicle.colour}) - {s.vehicle.reg}</p>
+                )}
+                {s.insurance && (
+                  <p><strong>Insurance:</strong> {s.insurance.company} - Policy {s.insurance.policyNumber}</p>
+                )}
+                {s.notes && <p><strong>Officer Notes:</strong> {s.notes}</p>}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>No party submissions yet.</p>
+        )}
+
         <div className="flex space-x-2">
-          <button
-            onClick={resendEmail}
-            className="px-4 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition"
-          >
-            Resend Email
-          </button>
+          <button onClick={() => window.print()} className="px-4 py-2 bg-blue-600 text-white rounded">Print</button>
+          <button onClick={() => window.print()} className="px-4 py-2 bg-blue-600 text-white rounded">Download PDF</button>
+          {mailto && <a href={mailto} className="px-4 py-2 bg-blue-600 text-white rounded">Send Email</a>}
+          <button onClick={resendEmail} className="px-4 py-2 bg-blue-500 text-white rounded">Resend Email</button>
           <QRCodeOverlay url={router.asPath} />
         </div>
 
@@ -157,6 +109,7 @@ export default function CrashView() {
           <QRCode value={router.asPath} size={128} />
         </div>
       </main>
+      <Footer />
     </div>
   );
 }
