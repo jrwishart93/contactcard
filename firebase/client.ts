@@ -1,6 +1,12 @@
 import { initializeApp, getApp, getApps } from 'firebase/app';
 import { getAnalytics } from 'firebase/analytics';
 import { getFirestore, setLogLevel, type Firestore } from 'firebase/firestore';
+import {
+  getAuth,
+  signInAnonymously,
+  onAuthStateChanged,
+  type Auth,
+} from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -15,6 +21,9 @@ const firebaseConfig = {
 // Initialize firebase only once, even if hot-reloaded
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
+// Export auth instance for client usage
+export const auth: Auth = getAuth(app);
+
 // Enable verbose Firestore logs for easier debugging in non-production envs
 if (process.env.NODE_ENV !== 'production') {
   setLogLevel('debug');
@@ -26,3 +35,12 @@ if (typeof window !== 'undefined') {
 }
 
 export const db: Firestore = getFirestore(app);
+
+// Ensure unauthenticated visitors can still read reports
+if (typeof window !== 'undefined') {
+  onAuthStateChanged(auth, user => {
+    if (!user) {
+      signInAnonymously(auth).catch(console.error);
+    }
+  });
+}

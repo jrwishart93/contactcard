@@ -18,6 +18,12 @@ jest.mock('firebase/firestore', () => {
   return { __esModule: true, ...mocks };
 });
 
+jest.mock('firebase/auth', () => ({
+  getAuth: jest.fn(() => ({})),
+  signInAnonymously: jest.fn(() => Promise.resolve()),
+  onAuthStateChanged: jest.fn(),
+}));
+
 const REQUIRED = [
   'NEXT_PUBLIC_FIREBASE_API_KEY',
   'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN',

@@ -1,9 +1,9 @@
 import { ReactNode } from 'react';
-import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { auth } from '@/firebase/client';
 import { useAuthState } from 'react-firebase-hooks/auth';
 
 export default function AuthCheck({ children }: { children: ReactNode }) {
-  const auth = getAuth();
   const [user, loading] = useAuthState(auth);
 
   const signIn = async () => {
