@@ -48,35 +48,42 @@ export default function RTCForm() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-   // ← NEW: use Nominatim instead of  Mapbox
-   const lookupAddresses = async () => {
-     const pc = formData.postcode.trim();
-     if (!pc) { alert("Please enter a postcode"); return; }
-     setAddressLoading(true);
-     setAddresses([]);
-     try {
-       const res = await fetch(
-        `/api/nominatim-address-lookup?postcode=${encodeURIComponent(pc)}&house=${encodeURIComponent(houseNum)}`
-      );
-       if (!res.ok) {
-         const txt = await res.text();
-         console.error("Lookup failed:", txt);
-         alert(`Lookup failed: ${res.status}`);
-         return;
-       }
-       const { addresses = [] } = await res.json();
-       if (addresses.length === 0) {
-         alert("No addresses found – check postcode/house");
-       } else {
-         setAddresses(addresses);
-       }
-     } catch (e) {
-       console.error("Lookup error", e);
-       alert("Address lookup failed (see console)");
-     } finally {
-       setAddressLoading(false);
-     }
-   };
+  const lookupAddresses = async () => {
+    const postcode = formData.postcode.trim();
+    const house = formData.houseNumber.trim();
+    if (!postcode) {
+      alert('Please enter a postcode');
+      return;
+    }
+
+    const tryFetch = async (path) => {
+      console.log('Fetching', path);
+      const res = await fetch(path);
+      console.log('→ status', res.status);
+      if (!res.ok) return null;
+      const data = await res.json();
+      console.log('→ data', data);
+      return data.addresses && data.addresses.length ? data.addresses : null;
+    };
+
+    setAddressLoading(true);
+    setAddresses([]);
+
+    const encPost = encodeURIComponent(postcode);
+    const encHouse = encodeURIComponent(house);
+
+    let found =
+      (await tryFetch(`/api/mapbox-address-lookup?postcode=${encPost}&house=${encHouse}`)) ||
+      (await tryFetch(`/api/nominatim-address-lookup?postcode=${encPost}&house=${encHouse}`));
+
+    if (found) {
+      setAddresses(found);
+    } else {
+      alert('No addresses found — check postcode!');
+    }
+
+    setAddressLoading(false);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();

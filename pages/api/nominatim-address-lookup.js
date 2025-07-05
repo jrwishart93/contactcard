@@ -8,12 +8,16 @@ export default async function handler(req, res) {
     // build your query: "EH11 2JT 30"
     const q = encodeURIComponent(`${postcode.trim()} ${house.trim()}`.trim());
     const url = `https://nominatim.openstreetmap.org/search?q=${q}&countrycodes=gb&format=json&limit=5&addressdetails=1`;
-  
+    console.log('nominatim lookup', { postcode, house, url });
+    
     try {
+      const email = process.env.NEXT_PUBLIC_NOMINATIM_EMAIL || '';
       const nomRes = await fetch(url, {
         headers: {
           // Nominatim requires a valid User-Agent or Referer
-          'User-Agent': 'contact-card-app/1.0 (your-email@domain.com)'
+          'User-Agent': email
+            ? `contact-card-app/1.0 (${email})`
+            : 'contact-card-app/1.0'
         }
       });
       if (!nomRes.ok) {
