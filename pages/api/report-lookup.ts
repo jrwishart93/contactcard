@@ -1,5 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore, doc, getDoc, collection, getDocs } from 'firebase/firestore';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import validateConfig from '../../firebase/validateConfig';
 
 const firebaseConfig = {
@@ -13,11 +14,17 @@ const firebaseConfig = {
 };
 
 
-export default async function handler(req, res) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+): Promise<void> {
   validateConfig();
   if (!getApps().length) initializeApp(firebaseConfig);
   const db = getFirestore();
-  if (req.method !== 'POST') return res.status(405).end();
+  if (req.method !== 'POST') {
+    res.status(405).end();
+    return;
+  }
 
   const { policeRef, incidentDate, email } = req.body || {};
   if (!policeRef || !incidentDate || !email) {
@@ -33,7 +40,7 @@ export default async function handler(req, res) {
     }
     const data = snap.data();
     const subsSnap = await getDocs(collection(db, 'rtc', id, 'submissions'));
-    const submissions = subsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const submissions = subsSnap.docs.map(d => ({ id: d.id, ...d.data() })) as any[];
     const hasEmail = submissions.some(s => s.email && s.email.toLowerCase() === email.toLowerCase());
     if (!hasEmail) {
       return res.status(404).json({ error: 'not found' });

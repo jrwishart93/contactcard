@@ -58,11 +58,11 @@ export default function LocationPicker({
         mapRef.current = new mbgl.default.Map({
           container: mapContainerRef.current,
           style: 'mapbox://styles/mapbox/streets-v12',
-          center: [lng, lat],
+          center: [parseFloat(lng), parseFloat(lat)],
           zoom: 14,
         })
         markerRef.current = new mbgl.default.Marker({ draggable: true })
-          .setLngLat([lng, lat])
+          .setLngLat([parseFloat(lng), parseFloat(lat)])
           .addTo(mapRef.current)
 
         markerRef.current.on('dragend', () => {

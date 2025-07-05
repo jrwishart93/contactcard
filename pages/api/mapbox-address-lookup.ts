@@ -1,7 +1,15 @@
-// pages/api/mapbox-address-lookup.js
-export default async function handler(req, res) {
+import type { NextApiRequest, NextApiResponse } from 'next';
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+): Promise<void> {
   let { postcode = "", house = "" } = req.query;
-  postcode = postcode.trim().toUpperCase().replace(/\s+/g, "");
+  postcode = (Array.isArray(postcode) ? postcode[0] : postcode)
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, "");
+  house = Array.isArray(house) ? house[0] : house;
 
   // put a space before the final 3 chars
   if (postcode.length > 3) {

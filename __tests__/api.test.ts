@@ -42,9 +42,9 @@ beforeEach(() => {
 
 describe('firebase config validation for API routes', () => {
   const modules = [
-    '../pages/api/submit.js',
-    '../pages/api/report-lookup.js',
-    '../pages/api/final-summary.js',
+    '../pages/api/submit.ts',
+    '../pages/api/report-lookup.ts',
+    '../pages/api/final-summary.ts',
   ];
 
   test.each(modules)('%s throws when env vars missing', async mod => {
@@ -59,7 +59,7 @@ describe('firebase config validation for API routes', () => {
 describe('/api/submit', () => {
   let app;
   beforeEach(() => {
-    const handler = require('../pages/api/submit.js').default;
+    const handler = require('../pages/api/submit.ts').default;
     app = express();
     app.use(express.json());
     app.post('/api/submit', (req, res) => handler(req, res));
@@ -92,7 +92,7 @@ describe('/api/submit', () => {
 describe('/api/report-lookup', () => {
   let app;
   beforeEach(() => {
-    const handler = require('../pages/api/report-lookup.js').default;
+    const handler = require('../pages/api/report-lookup.ts').default;
     app = express();
     app.use(express.json());
     app.post('/api/report-lookup', (req, res) => handler(req, res));
@@ -119,7 +119,7 @@ describe('/api/report-lookup', () => {
 describe('/api/address-lookup', () => {
   let app;
   beforeEach(() => {
-    const handler = require('../pages/api/address-lookup.js').default;
+    const handler = require('../pages/api/address-lookup.ts').default;
     app = express();
     app.get('/api/address-lookup', (req, res) => handler(req, res));
   });
@@ -140,7 +140,7 @@ describe('/api/address-lookup', () => {
 describe('/api/sendEmail', () => {
   let app;
   beforeEach(() => {
-    const handler = require('../pages/api/sendEmail.js').default;
+    const handler = require('../pages/api/sendEmail.ts').default;
     app = express();
     app.use(express.json());
     app.all('/api/sendEmail', (req, res) => handler(req, res));
@@ -164,7 +164,7 @@ describe('/api/sendEmail', () => {
 describe('/api/resend', () => {
   let app;
   beforeEach(() => {
-    const handler = require('../pages/api/resend.js').default;
+    const handler = require('../pages/api/resend.ts').default;
     app = express();
     app.use(express.json());
     app.all('/api/resend', (req, res) => handler(req, res));
@@ -186,7 +186,7 @@ describe('/api/resend', () => {
 describe('/api/final-summary', () => {
   let app;
   beforeEach(() => {
-    const handler = require('../pages/api/final-summary.js').default;
+    const handler = require('../pages/api/final-summary.ts').default;
     app = express();
     app.use(express.json());
     app.post('/api/final-summary', (req, res) => handler(req, res));

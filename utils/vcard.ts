@@ -1,5 +1,11 @@
-// utils/vcard.js
-export function generateVCard({ name, email, phone, unit }) {
+export interface VCardOptions {
+  name: string;
+  email: string;
+  phone?: string;
+  unit?: string;
+}
+
+export function generateVCard({ name, email, phone, unit }: VCardOptions): string {
   const lines = [
     'BEGIN:VCARD',
     'VERSION:3.0',
