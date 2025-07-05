@@ -1,7 +1,7 @@
 // pages/crash/[id].js
 import { useRouter } from 'next/router';
-import { useDocumentData } from 'react-firebase-hooks/firestore';
-import { doc } from 'firebase/firestore';
+import { useDocumentData, useCollectionData } from 'react-firebase-hooks/firestore';
+import { doc, collection } from 'firebase/firestore';
 import Header from '@/components/Header';
 import { db } from '@/firebase/client';
 import QRCodeOverlay from '@/components/QRCodeOverlay';
@@ -19,6 +19,8 @@ export default function CrashView() {
   const docId = Array.isArray(id) ? id[0] : id;
   const docRef = docId ? doc(db, 'rtc', docId) : null;
   const [value, loading, error] = useDocumentData(docRef);
+  const submissionsRef = docId ? collection(db, 'rtc', docId, 'submissions') : null;
+  const [submissions, subsLoading, subsError] = useCollectionData(submissionsRef, { idField: 'id' });
 
   const resendEmail = async () => {
     try {
@@ -29,8 +31,8 @@ export default function CrashView() {
     }
   };
 
-  if (loading) return <p className="p-4">Loading…</p>;
-  if (error) return <p className="p-4 text-red-500">Error loading report.</p>;
+  if (loading || subsLoading) return <p className="p-4">Loading…</p>;
+  if (error || subsError) return <p className="p-4 text-red-500">Error loading report.</p>;
   if (!value) return null;
 
   return (
@@ -140,8 +142,48 @@ export default function CrashView() {
             <span className="font-medium">Officer Dealing:</span>{' '}
             {value.officer}
           </p>
-          )}
+        )}
         </div>
+
+        {submissions && submissions.length > 0 ? (
+          <div className="space-y-4">
+            {submissions.map((s, idx) => {
+              const vehicle = s.vehicle || {};
+              const insurance = s.insurance || {};
+              return (
+                <div key={s.id} className="border p-4 rounded">
+                  <h2 className="font-semibold mb-2">Party {idx + 1}</h2>
+                  <p>
+                    <strong>Name:</strong> {s.fullName}
+                  </p>
+                  {s.email && (
+                    <p>
+                      <strong>Email:</strong>{' '}
+                      <a href={`mailto:${s.email}`} className="text-blue-600 underline">
+                        {s.email}
+                      </a>
+                    </p>
+                  )}
+                  {s.phone && (
+                    <p>
+                      <strong>Phone:</strong> {s.phone}
+                    </p>
+                  )}
+                  <p>
+                    <strong>Vehicle:</strong> {vehicle.make || ''} {vehicle.model || ''}{' '}
+                    {vehicle.colour ? `(${vehicle.colour})` : ''} - {vehicle.reg || ''}
+                  </p>
+                  <p>
+                    <strong>Insurance:</strong> {insurance.company || ''} - Policy{' '}
+                    {insurance.policyNumber || ''}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p>No party submissions yet.</p>
+        )}
 
         <div className="flex space-x-2">
           <button
@@ -149,6 +191,15 @@ export default function CrashView() {
             className="px-4 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition"
           >
             Resend Email
+          </button>
+          <button
+            onClick={() => window.print()}
+            className="px-4 py-2 rounded-full bg-gray-200 hover:bg-gray-300"
+          >
+            Print
+          </button>
+          <button className="px-4 py-2 rounded-full bg-gray-200 hover:bg-gray-300">
+            Download PDF
           </button>
           <QRCodeOverlay url={router.asPath} />
         </div>
