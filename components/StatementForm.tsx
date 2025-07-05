@@ -1,5 +1,8 @@
 import { useState } from 'react';
+import { useRouter } from 'next/router';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import Handlebars from 'handlebars';
+import { db } from '@/firebase/client';
 
 export default function StatementForm() {
   const [formData, setFormData] = useState({
@@ -18,6 +21,7 @@ export default function StatementForm() {
   const [witnesses, setWitnesses] = useState([{ name: '', statement: '' }]);
   const [loading, setLoading] = useState(false);
   const [output, setOutput] = useState('');
+  const router = useRouter();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -45,7 +49,8 @@ export default function StatementForm() {
     setWitnesses((w) => w.map((o, i) => (i === idx ? { ...o, [field]: value } : o)));
   };
 
-  const generate = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setLoading(true);
     const tmplEl = document.getElementById('statement-template');
     let text = '';
@@ -68,12 +73,35 @@ export default function StatementForm() {
         text = 'Failed to generate statement';
       }
     }
+
     setOutput(text);
-    setLoading(false);
+
+    try {
+      const id = `PS-${formData.date.replace(/-/g, '')}-${Math.floor(
+        1000 + Math.random() * 9000,
+      )}`;
+      await setDoc(
+        doc(db, 'statements', id),
+        {
+          ...formData,
+          otherParties,
+          witnesses,
+          text,
+          created: serverTimestamp(),
+        },
+        { merge: true },
+      );
+      router.push(`/statement/${id}`);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to save statement');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <form className="space-y-4 text-base" onSubmit={(e) => e.preventDefault()}>
+    <form className="space-y-4 text-base" onSubmit={handleSubmit}>
       <h2 className="text-lg font-semibold">Statement Details</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -176,8 +204,8 @@ export default function StatementForm() {
           I confirm the above is accurate
         </label>
       </div>
-      <button type="button" disabled={!formData.declaration || loading} onClick={generate} className="px-6 py-3 rounded-full bg-blue-600 text-white">
-        {loading ? 'Generating...' : 'Generate Statement'}
+      <button type="submit" disabled={!formData.declaration || loading} className="px-6 py-3 rounded-full bg-blue-600 text-white">
+        {loading ? 'Saving...' : 'Generate & Save'}
       </button>
       {output && (
         <pre id="output" className="mt-4 whitespace-pre-wrap p-4 border rounded bg-gray-100 dark:bg-gray-800">
