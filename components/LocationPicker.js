@@ -29,7 +29,12 @@ export default function LocationPicker({
     }
     let cancelled = false
     geocoder
-      .forwardGeocode({ query: search, limit: 5, autocomplete: true })
+      .forwardGeocode({
+        query: search,
+        limit: 5,
+        autocomplete: true,
+        countries: ['gb'],
+      })
       .send()
       .then((res) => {
         if (!cancelled) setSuggestions(res.body.features || [])
