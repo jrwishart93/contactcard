@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import Handlebars from 'handlebars';
+import { useRouter } from 'next/router';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/firebase/client';
 
 export default function StatementForm() {
   const [formData, setFormData] = useState({
@@ -18,6 +21,7 @@ export default function StatementForm() {
   const [witnesses, setWitnesses] = useState([{ name: '', statement: '' }]);
   const [loading, setLoading] = useState(false);
   const [output, setOutput] = useState('');
+  const router = useRouter();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -68,7 +72,20 @@ export default function StatementForm() {
         text = 'Failed to generate statement';
       }
     }
-    setOutput(text);
+    try {
+      const docRef = await addDoc(collection(db, 'statements'), {
+        ...formData,
+        otherParties,
+        witnesses,
+        text,
+        created: serverTimestamp(),
+      });
+      setOutput(text);
+      router.push(`/statement/${docRef.id}`);
+    } catch (err) {
+      console.error(err);
+      setOutput('Failed to save statement');
+    }
     setLoading(false);
   };
 

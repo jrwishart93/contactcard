@@ -78,10 +78,10 @@ export default async function handler(
       from: 'Police Scotland <noreply@resend.dev>',
       to: email,
       subject: 'Crash Report Confirmation',
-      html
+      html,
     });
 
-    res.status(200).json({ success: true });
+    res.status(200).json({ success: true, id: incidentNumber });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });

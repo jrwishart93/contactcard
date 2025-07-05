@@ -119,7 +119,8 @@ export default function RTCForm() {
         }),
       });
       if (!emailRes.ok) throw new Error('Email request failed');
-      router.push(`/rtc/${incidentId}`);
+      const { id } = await emailRes.json();
+      router.push(`/crash/${id}`);
     } catch (error) {
       console.error('Error:', error);
       alert('Failed to create report');
