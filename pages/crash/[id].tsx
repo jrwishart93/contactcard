@@ -20,7 +20,7 @@ export default function CrashView() {
   const docRef = docId ? doc(db, 'rtc', docId) : null;
   const [value, loading, error] = useDocumentData(docRef);
   const submissionsRef = docId ? collection(db, 'rtc', docId, 'submissions') : null;
-  const [submissions, subsLoading, subsError] = useCollectionData(submissionsRef, { idField: 'id' });
+  const [submissions, subsLoading, subsError] = useCollectionData(submissionsRef, { idField: 'id' } as any);
 
   const resendEmail = async () => {
     try {

@@ -219,3 +219,5 @@ describe('/api/final-summary', () => {
     expect(emailsSend).toHaveBeenCalled();
   });
 });
+
+export {};
