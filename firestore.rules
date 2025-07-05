@@ -2,9 +2,17 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{db}/documents {
     match /rtc/{id} {
-      // allow storing optional locationNotes on RTC documents
       // Public read/write access so users can submit and view RTC reports
       allow read, write: if true;
+      match /submissions/{subId} {
+        // Individual party submissions remain publicly writable
+        allow read, write: if true;
+      }
+    }
+
+    // Admin-only data
+    match /admin/{document=**} {
+      allow read, write: if request.auth != null;
     }
   }
 }

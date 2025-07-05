@@ -4,6 +4,7 @@ import { collection, doc, updateDoc } from 'firebase/firestore';
 import { useCollection, useCollectionData } from 'react-firebase-hooks/firestore';
 import { db } from '@/firebase/client';
 import Header from '@/components/Header';
+import AuthCheck from '@/components/AuthCheck';
 
 function IncidentRow({ id }) {
   const submissionsRef = collection(db, 'rtc', id, 'submissions');
@@ -86,14 +87,16 @@ export default function AdminPage() {
     return <p className="p-4">Loading…</p>;
   }
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white">
-      <Header />
-      <main className="p-4 max-w-3xl mx-auto">
-        <h1 className="text-2xl mb-4">RTC Admin</h1>
-        {incidentsSnapshot.docs.map(docSnap => (
-          <IncidentRow key={docSnap.id} id={docSnap.id} />
-        ))}
-      </main>
-    </div>
+    <AuthCheck>
+      <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white">
+        <Header />
+        <main className="p-4 max-w-3xl mx-auto">
+          <h1 className="text-2xl mb-4">RTC Admin</h1>
+          {incidentsSnapshot.docs.map(docSnap => (
+            <IncidentRow key={docSnap.id} id={docSnap.id} />
+          ))}
+        </main>
+      </div>
+    </AuthCheck>
   );
 }
