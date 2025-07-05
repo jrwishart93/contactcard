@@ -8,7 +8,7 @@ export const REQUIRED_VARS = [
   'NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID',
 ];
 
-export default function validateConfig(env = process.env) {
+export default function validateConfig(env: NodeJS.ProcessEnv = process.env): void {
   const missing = REQUIRED_VARS.filter(name => !env[name]);
   if (missing.length) {
     throw new Error(`Missing Firebase config variables: ${missing.join(', ')}`);

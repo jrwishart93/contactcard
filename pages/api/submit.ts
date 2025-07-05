@@ -1,6 +1,7 @@
 import { Resend } from 'resend';
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import validateConfig from '../../firebase/validateConfig';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -16,11 +17,17 @@ const firebaseConfig = {
 };
 
 
-export default async function handler(req, res) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+): Promise<void> {
   validateConfig();
   if (!getApps().length) initializeApp(firebaseConfig);
   const db = getFirestore();
-  if (req.method !== 'POST') return res.status(405).end();
+  if (req.method !== 'POST') {
+    res.status(405).end();
+    return;
+  }
 
   const {
     incidentNumber,
@@ -81,6 +88,19 @@ export default async function handler(req, res) {
   }
 }
 
+interface EmailTemplateOpts {
+  fullName: string;
+  email: string;
+  constable: string;
+  location: string;
+  locationNotes?: string;
+  incidentNumber: string;
+  incidentDate?: string;
+  policeRef?: string;
+  vehicleDetails: string;
+  insuranceDetails: string;
+}
+
 function generateInitialEmailTemplate({
   fullName,
   email,
@@ -92,7 +112,7 @@ function generateInitialEmailTemplate({
   policeRef,
   vehicleDetails,
   insuranceDetails,
-}) {
+}: EmailTemplateOpts): string {
   return `
     <!DOCTYPE html>
     <html>

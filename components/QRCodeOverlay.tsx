@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 
-const QRCode = dynamic(() => import('qrcode.react'), { ssr: false });
+const QRCode: any = dynamic(() => import('qrcode.react').then(m => m.default as any), { ssr: false });
 
 export default function QRCodeOverlay({ url }) {
   const [open, setOpen] = useState(false);

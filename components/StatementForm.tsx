@@ -111,7 +111,7 @@ export default function StatementForm() {
             width="100%"
             height="300"
             className="border rounded"
-            src={`https://www.openstreetmap.org/export/embed.html?bbox=${formData.lng - 0.005},${formData.lat - 0.005},${formData.lng + 0.005},${formData.lat + 0.005}&layer=mapnik&marker=${formData.lat},${formData.lng}`}
+            src={`https://www.openstreetmap.org/export/embed.html?bbox=${parseFloat(formData.lng) - 0.005},${parseFloat(formData.lat) - 0.005},${parseFloat(formData.lng) + 0.005},${parseFloat(formData.lat) + 0.005}&layer=mapnik&marker=${formData.lat},${formData.lng}`}
           />
         </div>
       )}

@@ -1,14 +1,20 @@
- // pages/api/nominatim-address-lookup.js
-export default async function handler(req, res) {
+import type { NextApiRequest, NextApiResponse } from 'next';
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+): Promise<void> {
     const { postcode = '', house = '' } = req.query;
-    if (!postcode.trim()) {
+    const pc = Array.isArray(postcode) ? postcode[0] : postcode;
+    const hs = Array.isArray(house) ? house[0] : house;
+    if (!pc.trim()) {
       return res.status(400).json({ error: 'Postcode required' });
     }
-  
+
     // build your query: "EH11 2JT 30"
-    const q = encodeURIComponent(`${postcode.trim()} ${house.trim()}`.trim());
+    const q = encodeURIComponent(`${pc.trim()} ${hs.trim()}`.trim());
     const url = `https://nominatim.openstreetmap.org/search?q=${q}&countrycodes=gb&format=json&limit=5&addressdetails=1`;
-    console.log('nominatim lookup', { postcode, house, url });
+    console.log('nominatim lookup', { postcode: pc, house: hs, url });
     
     try {
       const email = process.env.NEXT_PUBLIC_NOMINATIM_EMAIL || '';
@@ -35,4 +41,3 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Server error' });
     }
   }
-  
