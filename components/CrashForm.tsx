@@ -1,4 +1,4 @@
-// components/RTCForm.js
+// components/CrashForm.js
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -7,7 +7,7 @@ import { db } from '@/firebase/client';
 
 const LocationPicker = dynamic(() => import('./LocationPicker'), { ssr: false });
 
-export default function RTCForm() {
+export default function CrashForm() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     incidentDate: '',
@@ -119,7 +119,7 @@ export default function RTCForm() {
         }),
       });
       if (!emailRes.ok) throw new Error('Email request failed');
-      router.push(`/rtc/${incidentId}`);
+      router.push(`/crash/${incidentId}`);
     } catch (error) {
       console.error('Error:', error);
       alert('Failed to create report');

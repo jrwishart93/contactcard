@@ -61,4 +61,4 @@ firebase deploy --only functions,hosting
 
 ## RTC Form Usage
 
-Use the form at `/rtc/new` to collect details from drivers involved in a collision. The app stores submissions in Firestore and emails each driver using Resend.
+Use the form at `/crash/new` to collect details from drivers involved in a collision. The app stores submissions in Firestore and emails each driver using Resend.
