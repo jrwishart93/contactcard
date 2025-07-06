@@ -39,9 +39,6 @@ export default function Header() {
         <Link href="/officers" className="block hover:underline" onClick={() => setMenuOpen(false)}>
           Officers
         </Link>
-        <Link href="/team" className="block hover:underline" onClick={() => setMenuOpen(false)}>
-          Team
-        </Link>
         <Link href="/privacy" className="block hover:underline" onClick={() => setMenuOpen(false)}>
           Privacy
         </Link>

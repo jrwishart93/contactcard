@@ -9,7 +9,7 @@ export default function Footer() {
         <span>•</span>
         <a href="#how-it-works" className="hover:underline">How It Works</a>
         <span>•</span>
-        <a href="#team" className="hover:underline">Team Contacts</a>
+        <a href="#officers" className="hover:underline">Officer Contacts</a>
         <span>•</span>
         <Link href="/privacy" className="hover:underline">Privacy &amp; GDPR</Link>
       </nav>

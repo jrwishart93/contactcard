@@ -16,6 +16,11 @@ module.exports = {
         destination: '/statement/:path*',
         permanent: true,
       },
+      {
+        source: '/team/:path*',
+        destination: '/officers/:path*',
+        permanent: true,
+      },
     ];
   },
 };

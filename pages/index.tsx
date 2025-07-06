@@ -176,10 +176,10 @@ export default function Home() {
             </div>
           </section>
 
-          {/* TEAM CONTACTS */}
-          <section id="team" className="bg-gray-50 py-16 px-4">
+          {/* OFFICER CONTACTS */}
+          <section id="officers" className="bg-gray-50 py-16 px-4">
             <h2 className="text-3xl font-semibold text-center mb-8">
-              Team Contacts
+              Officer Contacts
             </h2>
             <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
               {previewOfficers.map((officer) => (
@@ -188,7 +188,7 @@ export default function Home() {
             </div>
             <div className="mt-8 text-center">
               <Link
-                href="/team"
+                href="/officers"
                 className="inline-block border border-[#003b77] text-[#003b77] px-6 py-2 rounded hover:bg-[#003b77] hover:text-white transition"
               >
                 View All Officers →
@@ -198,10 +198,10 @@ export default function Home() {
 
           <div className="py-8 text-center">
             <Link
-              href="/team"
+              href="/officers"
               className="inline-block px-6 py-3 bg-[#003b77] text-white rounded shadow hover:opacity-90 transition"
             >
-              Team Contacts
+              Officer Contacts
             </Link>
           </div>
         </main>
