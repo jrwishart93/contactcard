@@ -154,12 +154,27 @@ describe('/api/sendEmail', () => {
   });
 
   it('proxies request and returns ok', async () => {
-    global.fetch = jest.fn().mockResolvedValue({});
+    global.fetch = jest.fn().mockResolvedValue({ ok: true, status: 200, statusText: 'OK' });
     const res = await request(app)
       .post('/api/sendEmail')
       .send({ foo: 'bar' });
     expect(res.status).toBe(200);
     expect(global.fetch).toHaveBeenCalled();
+  });
+
+  it('returns 500 if BASE_URL missing', async () => {
+    delete process.env.BASE_URL;
+    global.fetch = jest.fn();
+    const res = await request(app).post('/api/sendEmail').send({ foo: 'bar' });
+    expect(res.status).toBe(500);
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  it('returns error when fetch fails', async () => {
+    global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 502, statusText: 'Bad Gateway' });
+    const res = await request(app).post('/api/sendEmail').send({ foo: 'bar' });
+    expect(res.status).toBe(500);
+    expect(res.body.error).toMatch(/502 Bad Gateway/);
   });
 
   it('rejects non-POST requests', async () => {
@@ -178,10 +193,25 @@ describe('/api/resend', () => {
   });
 
   it('calls sendEmail endpoint', async () => {
-    global.fetch = jest.fn().mockResolvedValue({});
+    global.fetch = jest.fn().mockResolvedValue({ ok: true, status: 200, statusText: 'OK' });
     const res = await request(app).post('/api/resend').send({ id: '123' });
     expect(res.status).toBe(200);
     expect(global.fetch).toHaveBeenCalled();
+  });
+
+  it('returns 500 if BASE_URL missing', async () => {
+    delete process.env.BASE_URL;
+    global.fetch = jest.fn();
+    const res = await request(app).post('/api/resend').send({ id: '123' });
+    expect(res.status).toBe(500);
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  it('returns error when fetch fails', async () => {
+    global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 404, statusText: 'Not Found' });
+    const res = await request(app).post('/api/resend').send({ id: '123' });
+    expect(res.status).toBe(500);
+    expect(res.body.error).toMatch(/404 Not Found/);
   });
 
   it('rejects non-POST requests', async () => {
