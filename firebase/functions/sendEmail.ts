@@ -1,4 +1,4 @@
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);

@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "commonjs",
+    "lib": ["es2017"],
+    "rootDir": "../firebase/functions",
+    "outDir": "./lib",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "strict": false
+  },
+  "include": ["../firebase/functions/**/*.ts"]
+}
