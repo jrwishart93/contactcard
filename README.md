@@ -1,6 +1,6 @@
 # Roads Policing Contact Card
 
-This Next.js project provides a contact card for Police Scotland's Roads Policing Unit with a team directory and RTC reporting tool.
+This Next.js project provides a contact card for Police Scotland's Roads Policing Unit with an officers directory and RTC reporting tool.
 
 ## Development
 
