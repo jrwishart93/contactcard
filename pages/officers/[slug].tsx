@@ -1,9 +1,8 @@
 // pages/officers/[slug].tsx
 import { useRouter } from 'next/router';
 import Header from '@/components/Header';
-import ContactCard from '@/components/ContactCard';
+import OfficerProfile from '@/components/OfficerProfile';
 import { officers } from '@/data/officers';
-import { generateVCard } from '@/utils/vcard';
 import { useEffect, useState } from 'react';
 
 export default function OfficerPage() {
@@ -20,19 +19,22 @@ export default function OfficerPage() {
 
   if (!officer) return null;
 
+  const mappedOfficer = {
+    name: officer.name,
+    badgeNumber: officer.badge,
+    collarNumber: officer.shoulderNumber,
+    unit: officer.unit,
+    email: officer.email,
+    phone: officer.phone,
+    profileImage: officer.image,
+  };
+
   return (
     <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white">
       <Header />
       <main className="p-4 flex justify-center">
         <div className="max-w-md w-full">
-          <ContactCard {...officer} />
-          <a
-            href={`data:text/vcard;charset=utf-8,${encodeURIComponent(generateVCard(officer))}`}
-            download="officer.vcf"
-            className="block mt-4 px-4 py-2 rounded-full bg-blue-600 text-white text-center hover:bg-blue-700 transition"
-          >
-            Download vCard
-          </a>
+          <OfficerProfile {...mappedOfficer} />
         </div>
       </main>
     </div>
