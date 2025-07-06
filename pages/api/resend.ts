@@ -9,15 +9,25 @@ export default async function handler(
     return;
   }
   const { id } = req.query;
+  const base = process.env.BASE_URL;
+  if (!base) {
+    res.status(500).json({ error: 'BASE_URL environment variable not set' });
+    return;
+  }
   try {
-    await fetch(process.env.BASE_URL + '/sendEmail', {
+    const resp = await fetch(base + '/sendEmail', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
     });
+    if (!resp.ok) {
+      throw new Error(
+        `Email service responded with ${resp.status} ${resp.statusText}`,
+      );
+    }
     res.status(200).json({ ok: true });
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to resend email' });
+    res.status(500).json({ error: err.message || 'Failed to resend email' });
   }
 }
